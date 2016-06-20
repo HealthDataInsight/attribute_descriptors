@@ -132,8 +132,9 @@ describe Metadata do
 
       it 'ActiveModel edge-case' do
         #
-        # In some versions ActiveModel seems to require valid? to be invoked in order
-        # for the errors to be generated.
+        # ActiveModel seems to require valid? to be invoked in order
+        # for the errors to be generated. We add this test just to be aware in
+        # case this behaviour changes.
         #
         assert ! MyModel.new().valid? # Should always work
         # Revoking before invalid?
