@@ -117,8 +117,8 @@ module Metadata
       #            the field programmatic_name in your metadata file.
       if loaded[k]['programmatic_name'].nil?
         underscored = k.tr(' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~', '_')
-        cleaned = underscored.split('_').select{|v| ! v.empty? }.join('_')
-        loaded[k]['programmatic_name'] = cleaned.downcase
+        singly_underscored = underscored.split('_').select{|v| ! v.empty? }.join('_')
+        loaded[k]['programmatic_name'] = singly_underscored
       end
 
       # Finally update values to the ones given by configuration file
