@@ -38,6 +38,15 @@ metadata_example2_file.close
 describe Metadata do
   include Test::Unit::Assertions
 
+  describe 'yml file' do
+    it 'allows validate to have regular expressions' do
+      assert true
+    end
+  end
+
+
+
+
   describe 'load_file' do
 
     it 'generates a structure that uses the field names as keys' do
@@ -55,6 +64,10 @@ describe Metadata do
       assert parsed['Fieldname1']['require'] == true
       assert parsed['Fieldname2']['programmatic_name'] == 'name2'
       assert parsed['Fieldname2']['require'] == true
+    end
+
+    it 'forces validation regular expressions to be quoted (".*") or ruby-like (/.*/)' do
+      assert true
     end
 
   end

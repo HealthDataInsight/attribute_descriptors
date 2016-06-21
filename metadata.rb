@@ -61,6 +61,17 @@ module Metadata
   #
   def self.load_file(filepath, defaults=nil)
     loaded = YAML.load_file(filepath)
+    return load_yaml(loaded, defaults)
+  end
+
+
+  #
+  # Reads raw YAML metadata specifying field names
+  # and other meta data like minimum length, maximum length, etc.
+  # and generates a structure that can be used in a view and/or model.
+  #
+  def self.load_yaml(metadata, defaults=nil)
+
 
     # Expand any field directives (ie. 'require=yes' ) in place
     #
@@ -72,7 +83,7 @@ module Metadata
     #      'b' => 20
     #    }
     #
-    loaded.each do |k,v|
+    metadata.each do |k,v|
 
       #
       # Default values
@@ -95,42 +106,42 @@ module Metadata
       #   1. expand compact syntax for parameters (ie. a=10 b=20)
       #   2. load any missing parameters from defaults
       if v.nil?
-        loaded[k] = params_hash
+        metadata[k] = params_hash
       elsif v.is_a? String
         if v.include? '='
-          params = loaded[k].split()
+          params = metadata[k].split()
           params.each do |param|
             name, value = param.split('=')
             params_hash[name] = YAML.load(value)
           end
-          loaded[k] = params_hash
+          metadata[k] = params_hash
         else
-          loaded[k] = YAML.load(v)
+          metadata[k] = YAML.load(v)
         end
       else
-        params_hash.each {|nam,val| loaded[k][nam] = params_hash[nam] if ! loaded[k].include? nam}
+        params_hash.each {|nam,val| metadata[k][nam] = params_hash[nam] if ! metadata[k].include? nam}
       end
 
       # Insert any values that couldn't be generated at any previous step
       # IMPORTANT: Automatically generated programmatic names can elicit
       #            potential bugs. You are highly adviced to manually specify
       #            the field programmatic_name in your metadata file.
-      if loaded[k]['programmatic_name'].nil?
+      if metadata[k]['programmatic_name'].nil?
         underscored = k.tr(' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~', '_')
         singly_underscored = underscored.split('_').select{|v| ! v.empty? }.join('_')
-        loaded[k]['programmatic_name'] = singly_underscored
+        metadata[k]['programmatic_name'] = singly_underscored
       end
 
       # Finally update values to the ones given by configuration file
-      loaded[k].each do |name, value|
+      metadata[k].each do |name, value|
           if params_hash.include? name
-            loaded[k][name] = value
+            metadata[k][name] = value
           end
       end
 
     end
 
-    return loaded
+    return metadata
   end
 
 
