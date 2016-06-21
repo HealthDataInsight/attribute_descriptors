@@ -3,8 +3,8 @@ Tests
 
 Run tests
 
-    rspec spec/metadata.rb
-
+    rspec spec/metadata.rb    # common tests
+    rspec spec/validations.rb # test different validations
 
 Usage
 -----
@@ -46,7 +46,7 @@ Metadata attributes
 
 The below attributes are being used for the generation of attributes and validations. You can still add your own metadata entries.
 
-`validate` - regulare expression being used to validate field
+`validate` - regulare expression being used to validate the field. The regular expression tries to match the WHOLE field
 
 `programmatic_name` - name that will be used in the code. If left blank, this will be a filtered version of the field name
 

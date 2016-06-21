@@ -51,28 +51,28 @@ describe Metadata do
       assert parsed['field1']['whatever'] = 'bleh'
     end
 
-    it 's "validate" entries are regular expressions after being parsed' do
+    it 's "validate" entries become regular expressions after being parsed' do
       yaml = 'field1: validate=\w'
       assert Metadata.load_yaml(yaml)['field1']['validate'].is_a? Regexp
     end
 
-    it 's "validate" entries are not altered in any way after being parsed' do
+    it 's "validate" entries once parsed, have the \A and \z placeholders enforced' do
       yaml = 'field1: validate=\w'
-      assert Metadata.load_yaml(yaml)['field1']['validate'] == /\w/
+      assert Metadata.load_yaml(yaml)['field1']['validate'] == /\A\w\z/
     end
 
     it 's "validate" regexes can also use the ruby syntax (/bleh/)' do
       yaml = 'field1: validate=/\w/'
-      assert Metadata.load_yaml(yaml)['field1']['validate'] == /\w/
+      assert Metadata.load_yaml(yaml)['field1']['validate'] == /\A\w\z/
     end
 
     it 'more advanced regexes should be parsed in the same way' do
       base = "field1:\n  validate: "
       regexes = {
-        '.*' => /.*/,
-        '\w' => /\w/,
-        '\w{10}' => /\w{10}/,
-        '\w{10}[^\d]' => /\w{10}[^\d]/,
+        '.*' => /\A.*\z/,
+        '\w' => /\A\w\z/,
+        '\w{10}' => /\A\w{10}\z/,
+        '\w{10}[^\d]' => /\A\w{10}[^\d]\z/,
       }
       regexes.each do |re_in, re_out|
         assert Metadata.load_yaml(base + re_in)['field1']['validate'] == re_out

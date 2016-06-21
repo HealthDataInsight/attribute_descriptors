@@ -15,22 +15,22 @@ metadata = '''
 namelike:
   example: Seferidis
   invalid: Seferidis the 1st
-  validate: \A\D*$\z
+  validate: \D*
   require: no
 digits:
   example: 123456
   invalid: 12g334
-  validate: \A\d{6}\z
+  validate: \d{6}
   require: no
 alphanumeric:
   example: abc44
   invalid: 12345
-  validate: \A[a-zA-Z]{3}\d{2}\z
+  validate: /[a-zA-Z]{3}\d{2}/
   require: no
 gmail email:
   example: manossef@gmail.com
   invalid: manossef@yahoo.com
-  validate: /\A.*@gmail\.com\z/
+  validate: .*@gmail\.com
   require: no
 '''
 metafile = Tempfile.new('')
