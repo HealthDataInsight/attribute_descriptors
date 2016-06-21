@@ -209,6 +209,7 @@ module Metadata
       @@metadata.each do |field, meta|
         validates meta['programmatic_name'], :format      => meta['validate'],
                                              :allow_blank => !meta['require'],
+                                             :presence    => meta['require'],
                                              :length      => meta['min_length']..meta['max_length']
       end
     end
