@@ -73,6 +73,10 @@ module Metadata
   # and generates a structure that can be used in a view and/or model.
   #
   def self.load_yaml(yaml, defaults=nil)
+
+    # IMPORTANT: Escape the escape backslashes before continuing
+    #yaml = %q{yaml}
+
     metadata = YAML.load(yaml)
 
     # Expand any field directives (ie. 'require=yes' ) in place
@@ -85,16 +89,16 @@ module Metadata
     #      'b' => 20
     #    }
     #
-    metadata.each do |k,v|
+    metadata.each do |fieldname, meta|
 
       #
       # Default values
       #
       # values     -> probable values of the field
       # values_max ->
-      params_hash = defaults || {
+      params = defaults || {
         'require'        => true,
-        'validate'       => '.*',
+        'validate'       => /.*/,
         'max_length'     => nil,
         'min_length'     => 0,
         'min_value'      => 0,
@@ -104,41 +108,51 @@ module Metadata
         'min_num_values' => 0,
       }
 
-      # First do some preprocessing
-      #   1. expand compact syntax for parameters (ie. a=10 b=20)
-      #   2. load any missing parameters from defaults
-      if v.nil?
-        metadata[k] = params_hash
-      elsif v.is_a? String
-        if v.include? '='
-          params = metadata[k].split()
-          params.each do |param|
-            name, value = param.split('=')
-            params_hash[name] = YAML.load(value)
-          end
-          metadata[k] = params_hash
-        else
-          metadata[k] = YAML.load(v)
+      # Expand compact syntax (ie. a=10 b=20)
+      #
+      # field1: require=true example=jojo
+      #   validate: .*
+      #
+      #     ..gives the meta..
+      # "field1" => "require=true example=jojo validate=.*"
+      #
+      if meta.is_a? String # This is always true if compact syntax is used
+        asssignments = meta.split(' ')
+        metadata[fieldname] = {}
+        asssignments.each do |assignment|
+          k,v = assignment.split('=')
+          metadata[fieldname][k] = v
         end
-      else
-        params_hash.each {|nam,val| metadata[k][nam] = params_hash[nam] if ! metadata[k].include? nam}
       end
 
-      # Insert any values that couldn't be generated at any previous step
-      # IMPORTANT: Automatically generated programmatic names can elicit
-      #            potential bugs. You are highly adviced to manually specify
-      #            the field programmatic_name in your metadata file.
-      if metadata[k]['programmatic_name'].nil?
-        underscored = k.tr(' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~', '_')
+
+      # Add any missing paramaters from defaults
+      params.each do |k, v|
+        metadata[fieldname][k] = params[k] if ! metadata[fieldname].include? k
+      end
+
+
+      # Generate a programmatic_name based on the fieldname if none explicitly given
+      # IMPORTANT: Automatically generated programmatic names might be too long.
+      #            You are advised to explicitly add the programmatic_name for
+      #            each field in your metadata file.
+      if metadata[fieldname]['programmatic_name'].nil?
+        underscored = fieldname.tr(' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~', '_')
         singly_underscored = underscored.split('_').select{|v| ! v.empty? }.join('_')
-        metadata[k]['programmatic_name'] = singly_underscored
+        metadata[fieldname]['programmatic_name'] = singly_underscored
       end
 
-      # Finally update values to the ones given by configuration file
-      metadata[k].each do |name, value|
-          if params_hash.include? name
-            metadata[k][name] = value
+      # Finally update/evaluate values to the ones given by configuration file
+      metadata[fieldname].each do |name, value|
+        case name
+        when 'validate'
+          if value.is_a?(String) && value.start_with?('/') && value.end_with?('/')
+            value = value[1...-1]
           end
+          metadata[fieldname][name] = Regexp.new(value)
+        else
+          metadata[fieldname][name] = value
+        end
       end
 
     end
@@ -192,7 +206,7 @@ module Metadata
         if meta['require']
           class_eval { validates_presence_of meta['programmatic_name'] }
         end
-        class_eval { validates_format_of meta['programmatic_name'], :with    => Regexp.new(meta['validate']) }
+        class_eval { validates_format_of meta['programmatic_name'], :with    => meta['validate'] }
         class_eval { validates_length_of meta['programmatic_name'], :minimum => meta['min_length'] if ! meta['min_length'].nil? }
         class_eval { validates_length_of meta['programmatic_name'], :maximum => meta['max_length'] if ! meta['max_length'].nil?}
       end

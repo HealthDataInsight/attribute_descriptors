@@ -38,9 +38,51 @@ metadata_example2_file.close
 describe Metadata do
   include Test::Unit::Assertions
 
-  describe 'yml file' do
-    it 'allows validate to have regular expressions' do
-      assert true
+  describe 'load_yaml' do
+    #
+    # IMPORTANT: Pay attention when you use single quotes and when double quotes
+    #            in the tests. Any YAML examples holding regexes MUST be quoted
+    #            as string literals and not mistakenly be evaluated.
+    #
+    it 'can be parsed in its most simple form' do
+      yaml = "field1:\n  require: true"
+      assert Metadata.load_yaml(yaml)['field1']['require'] == true
+    end
+
+    it 'can take the more compact syntax "a=1 b=2" etc.' do
+      yaml = "field1: require=true example=jojo\n  whatever=bleh"
+      parsed = Metadata.load_yaml(yaml)
+      assert parsed['field1']['require'] = true
+      assert parsed['field1']['example'] = 'jojo'
+      assert parsed['field1']['whatever'] = 'bleh'
+    end
+
+    it 's "validate" entries are regular expressions after being parsed' do
+      yaml = 'field1: validate=\w'
+      assert Metadata.load_yaml(yaml)['field1']['validate'].is_a? Regexp
+    end
+
+    it 's "validate" entries are not altered in any way after being parsed' do
+      yaml = 'field1: validate=\w'
+      assert Metadata.load_yaml(yaml)['field1']['validate'] == /\w/
+    end
+
+    it 's "validate" regexes can also use the ruby syntax (/bleh/)' do
+      yaml = 'field1: validate=/\w/'
+      assert Metadata.load_yaml(yaml)['field1']['validate'] == /\w/
+    end
+
+    it 'more advanced regexes should be parsed in the same way' do
+      base = "field1:\n  validate: "
+      regexes = {
+        '.*' => /.*/,
+        '\w' => /\w/,
+        '\w{10}' => /\w{10}/,
+        '\w{10}[^\d]' => /\w{10}[^\d]/,
+      }
+      regexes.each do |re_in, re_out|
+        assert Metadata.load_yaml(base + re_in)['field1']['validate'] == re_out
+      end
     end
   end
 
