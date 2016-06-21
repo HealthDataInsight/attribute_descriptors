@@ -99,10 +99,10 @@ module Metadata
       params = defaults || {
         'require'        => true,
         'validate'       => /.*/,
-        'max_length'     => nil,
+        'max_length'     => Float::INFINITY,
         'min_length'     => 0,
         'min_value'      => 0,
-        'max_value'      => nil,
+        'max_value'      => Float::INFINITY,
         'values'         => nil,
         'max_num_values' => nil,
         'min_num_values' => 0,
@@ -200,12 +200,9 @@ module Metadata
 
       # Generate validations based on metadata
       @@metadata.each do |field, meta|
-        if meta['require']
-          validates_presence_of meta['programmatic_name']
-        end
-        validates_format_of meta['programmatic_name'], :with    => meta['validate']
-        validates_length_of meta['programmatic_name'], :minimum => meta['min_length'] if ! meta['min_length'].nil?
-        validates_length_of meta['programmatic_name'], :maximum => meta['max_length'] if ! meta['max_length'].nil?
+        validates meta['programmatic_name'], :format      => meta['validate'],
+                                             :allow_blank => !meta['require'],
+                                             :length      => meta['min_length']..meta['max_length']
       end
     end
 

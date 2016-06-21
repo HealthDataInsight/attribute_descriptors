@@ -19,6 +19,13 @@ metadata_example_file = Tempfile.new('')
 metadata_example_file.write(metadata_example)
 metadata_example_file.close
 
+#
+# EXAMPLE 2
+#
+# REMOVE THIS!!!!!!!!!!!!!!!! UNUSED GARBAGE!!!!
+#
+metadata_example2_file = Tempfile.new('dsfasdfasgfdhshs ')
+
 
 
 
