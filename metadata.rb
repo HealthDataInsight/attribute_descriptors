@@ -199,9 +199,6 @@ module Metadata
       end
 
       # Generate validations based on metadata
-      # programmatic_names.each do |name|
-      #   class_eval { validates_presence_of name }
-      # end
       @@metadata.each do |field, meta|
         if meta['require']
           class_eval { validates_presence_of meta['programmatic_name'] }
