@@ -19,19 +19,6 @@ metadata_example_file = Tempfile.new('')
 metadata_example_file.write(metadata_example)
 metadata_example_file.close
 
-#
-# EXAMPLE 2
-#
-metadata_example2 = '''Forename:
-  programmatic_name: forename
-  require: true
-Surname:
-  programmatic_name: surname
-  require: true'''
-metadata_example2_file = Tempfile.new('')
-metadata_example2_file.write(metadata_example2)
-metadata_example2_file.close
-
 
 
 
