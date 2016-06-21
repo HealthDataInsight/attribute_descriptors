@@ -201,11 +201,11 @@ module Metadata
       # Generate validations based on metadata
       @@metadata.each do |field, meta|
         if meta['require']
-          class_eval { validates_presence_of meta['programmatic_name'] }
+          validates_presence_of meta['programmatic_name']
         end
-        class_eval { validates_format_of meta['programmatic_name'], :with    => meta['validate'] }
-        class_eval { validates_length_of meta['programmatic_name'], :minimum => meta['min_length'] if ! meta['min_length'].nil? }
-        class_eval { validates_length_of meta['programmatic_name'], :maximum => meta['max_length'] if ! meta['max_length'].nil?}
+        validates_format_of meta['programmatic_name'], :with    => meta['validate']
+        validates_length_of meta['programmatic_name'], :minimum => meta['min_length'] if ! meta['min_length'].nil?
+        validates_length_of meta['programmatic_name'], :maximum => meta['max_length'] if ! meta['max_length'].nil?
       end
     end
 
