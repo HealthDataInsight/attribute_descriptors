@@ -60,8 +60,10 @@ module Metadata
   # and generates a structure that can be used in a view and/or model.
   #
   def self.load_file(filepath, defaults=nil)
-    loaded = YAML.load_file(filepath)
-    return load_yaml(loaded, defaults)
+    f = open(filepath, 'r')
+    raw = f.read()
+    f.close()
+    return load_yaml(raw, defaults)
   end
 
 
@@ -70,8 +72,8 @@ module Metadata
   # and other meta data like minimum length, maximum length, etc.
   # and generates a structure that can be used in a view and/or model.
   #
-  def self.load_yaml(metadata, defaults=nil)
-
+  def self.load_yaml(yaml, defaults=nil)
+    metadata = YAML.load(yaml)
 
     # Expand any field directives (ie. 'require=yes' ) in place
     #
