@@ -73,23 +73,9 @@ module Metadata
   # and generates a structure that can be used in a view and/or model.
   #
   def self.load_yaml(yaml, defaults=nil)
-
-    # IMPORTANT: Escape the escape backslashes before continuing
-
     metadata = YAML.load(yaml)
 
-    # Expand any field directives (ie. 'require=yes' ) in place
-    #
-    # Example:
-    #    numbers: a=10 b=20
-    #        ..becomes..
-    #    numbers => {
-    #      'a' => 10,
-    #      'b' => 20
-    #    }
-    #
     metadata.each do |fieldname, meta|
-
       #
       # Default values
       #
