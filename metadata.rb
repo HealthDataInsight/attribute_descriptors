@@ -194,7 +194,7 @@ module Metadata
     #
     # (API) Load metadata and perform actions
     #
-    # This runs on class level (aka before initialization)
+    # This runs on class level (aka before instance initialization)
     #
     def self.generated_from(filepath)
       @@metadata = Metadata.load_file(filepath)
