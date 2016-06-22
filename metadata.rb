@@ -152,7 +152,7 @@ module Metadata
             # Enforce the \A..\z regex placeholders for security reasons
             # (http://guides.rubyonrails.org/security.html#regular-expressions)
             value = value[1..-1]  if value.start_with?('^')
-            value = value[0...-1]  if value.start_with?('$')
+            value = value[0...-1] if value.start_with?('$')
             value = '\A'+value if ! value.start_with?('\A')
             value = value+'\z' if ! value.end_with?('\z')
           end
