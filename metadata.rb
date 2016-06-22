@@ -75,7 +75,6 @@ module Metadata
   def self.load_yaml(yaml, defaults=nil)
 
     # IMPORTANT: Escape the escape backslashes before continuing
-    #yaml = %q{yaml}
 
     metadata = YAML.load(yaml)
 
