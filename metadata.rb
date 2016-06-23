@@ -110,7 +110,7 @@ module Metadata
       #            each field in your metadata file.
       if metadata[fieldname]['programmatic_name'].nil?
         underscored = fieldname.tr(' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{ |}~', '_')
-        singly_underscored = underscored.split('_').select { |v | !v.empty? }\
+        singly_underscored = underscored.split('_').select { |v| !v.empty? }\
                                         .join('_')
         metadata[fieldname]['programmatic_name'] = singly_underscored
       end
@@ -188,7 +188,7 @@ module Metadata
 
     def initialize(attrs = {})
       if metadata.nil?
-        raise "You need to call 'generated_from' in your class "\
+        fail "You need to call 'generated_from' in your class "\
               "to specify the metadata path"
       end
 
