@@ -5,16 +5,15 @@ require 'active_model'
 # hash (aka dictionary) structure from it that can be used to automate a lot of
 # things like form generation, data validators, etc.
 #
-# This is particularly useful when you want to generate a model and other components
-# but without a database.
+# This is particularly useful when you want to generate a model and other
+# components but without a database.
 #
 # Example
 # -------
 # Forename:
-# Surname:
 # NHS.net email address:
 #   programmatic_name: nhsmail
-#   validate: /.*@\.nhs\.net/
+#   validate: .*@\.nhs\.net
 #
 #
 #    .. results in the metadata structure below..
@@ -30,18 +29,8 @@ require 'active_model'
 #      "min_num_values" => 0
 #      "programmatic_name" => "forename"
 #   },
-#   "Surname" => {
-#      "require" => true,
-#      "validate" => /.*/,
-#      "min" => 0,
-#      "max" => Infinity,
-#      "values" => nil,
-#      "max_num_values" => Infinity,
-#      "min_num_values" => 0
-#      "programmatic_name" => "surname"
-#   },
 #   "NHS.net email address" => {
-#      "validate" => "/.*@\\.nhs\\.net/",
+#      "validate" => /\A.*@\\.nhs\\.net\z/,
 #      "require" => true,
 #      "min" => 0,
 #      "max" => Infinity,
@@ -53,26 +42,24 @@ require 'active_model'
 # }
 #
 module Metadata
-
   #
   # Reads a YAML configuration file specifying field names
   # and other meta data like minimum length, maximum length, etc.
   # and generates a structure that can be used in a view and/or model.
   #
-  def self.load_file(filepath, defaults=nil)
+  def self.load_file(filepath, defaults = nil)
     f = open(filepath, 'r')
-    raw = f.read()
-    f.close()
-    return load_yaml(raw, defaults)
+    raw = f.read
+    f.close
+    load_yaml(raw, defaults)
   end
-
 
   #
   # Reads raw YAML metadata specifying field names
   # and other meta data like minimum length, maximum length, etc.
   # and generates a structure that can be used in a view and/or model.
   #
-  def self.load_yaml(yaml, defaults=nil)
+  def self.load_yaml(yaml, defaults = nil)
     metadata = YAML.load(yaml)
 
     metadata.each do |fieldname, meta|
@@ -90,7 +77,7 @@ module Metadata
         'max_value'      => nil,
         'values'         => nil,
         'max_num_values' => nil,
-        'min_num_values' => 0,
+        'min_num_values' => 0
       }
 
       # Expand compact syntax (ie. a=10 b=20)
@@ -105,25 +92,26 @@ module Metadata
         asssignments = meta.split(' ')
         metadata[fieldname] = {}
         asssignments.each do |assignment|
-          k,v = assignment.split('=')
+          k, v = assignment.split('=')
           metadata[fieldname][k] = v
         end
       end
 
-
       # Add any missing paramaters from defaults
-      params.each do |k, v|
-        metadata[fieldname][k] = params[k] if ! metadata[fieldname].include? k
+      params.each do |k, _v|
+        metadata[fieldname][k] = params[k] unless metadata[fieldname].include? k
       end
 
-
-      # Generate a programmatic_name based on the fieldname if none explicitly given
+      # Generate a programmatic_name based on the fieldname if none explicitly
+      # given
+      #
       # IMPORTANT: Automatically generated programmatic names might be too long.
       #            You are advised to explicitly add the programmatic_name for
       #            each field in your metadata file.
       if metadata[fieldname]['programmatic_name'].nil?
-        underscored = fieldname.tr(' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~', '_')
-        singly_underscored = underscored.split('_').select{|v| ! v.empty? }.join('_')
+        underscored = fieldname.tr(' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{ |}~', '_')
+        singly_underscored = underscored.split('_').select { |v | !v.empty? }\
+                                        .join('_')
         metadata[fieldname]['programmatic_name'] = singly_underscored
       end
 
@@ -132,26 +120,25 @@ module Metadata
         case name
         when 'validate'
           if value.is_a?(String)
-            value = value[1...-1] if value.start_with?('/') && value.end_with?('/')
+            value = value[1...-1] if value.start_with?('/') && \
+                                     value.end_with?('/')
 
             # Enforce the \A..\z regex placeholders for security reasons
             # (http://guides.rubyonrails.org/security.html#regular-expressions)
             value = value[1..-1]  if value.start_with?('^')
             value = value[0...-1] if value.start_with?('$')
-            value = '\A'+value if ! value.start_with?('\A')
-            value = value+'\z' if ! value.end_with?('\z')
+            value = '\A' + value unless value.start_with?('\A')
+            value += '\z' unless value.end_with?('\z')
           end
           metadata[fieldname][name] = Regexp.new(value)
         else
           metadata[fieldname][name] = value
         end
       end
-
     end
 
-    return metadata
+    metadata
   end
-
 
   #
   # This class, once inherited let's you generate attributes and validations
@@ -164,8 +151,6 @@ module Metadata
   # attrs - the attributes you wish to populate
   #
   class AutogeneratedModel
-
-    # Needed for the validations
     include ActiveModel::Validations
 
     #
@@ -174,7 +159,6 @@ module Metadata
     def metadata
       @@metadata || nil
     end
-
 
     #
     # (API) Load metadata and perform actions
@@ -185,46 +169,39 @@ module Metadata
       @@metadata = Metadata.load_file(filepath)
 
       # Generate attribute accessors based on metadata
-      programmatic_names = @@metadata.collect {|k_,v| v['programmatic_name']}
+      programmatic_names = @@metadata.collect { |_k, v| v['programmatic_name'] }
       programmatic_names.each do |name|
         class_eval { attr_accessor name }
       end
 
       # Generate validations based on metadata
-      @@metadata.each do |field, meta|
+      @@metadata.each do |_field, meta|
         length = {}
         length[:minimum] = meta['min_length'] if meta['min_length']
         length[:maximum] = meta['max_length'] if meta['max_length']
-        validates meta['programmatic_name'], :format      => meta['validate'],
-                                             :allow_blank => !meta['require'],
-                                             :presence    => meta['require'],
-                                             :length      => length
+        validates meta['programmatic_name'], format:      meta['validate'],
+                                             allow_blank: !meta['require'],
+                                             presence:    meta['require'],
+                                             length:      length
       end
     end
 
-
     def initialize(attrs = {})
-
       if metadata.nil?
-        raise "You need to call 'generated_from' in your class to specify the metadata path"
+        raise "You need to call 'generated_from' in your class "\
+              "to specify the metadata path"
       end
 
       # Set attributes
       attrs.each do |name, value|
-        self.send("#{name}=", value) if programmatic_names.include? name
+        send("#{name}=", value) if programmatic_names.include? name
       end
-
     end
-
-
 
     private
 
     def programmatic_names
-      @@metadata.collect {|k_,v| v['programmatic_name']}
+      @@metadata.collect { |_k, v| v['programmatic_name'] }
     end
-
   end
-
-
 end
