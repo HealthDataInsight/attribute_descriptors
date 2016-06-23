@@ -177,8 +177,8 @@ module Metadata
       # Generate validations based on metadata
       @@metadata.each do |_field, meta|
         length = {}
-        length[:minimum] = meta['min_length'] if meta['min_length']
-        length[:maximum] = meta['max_length'] if meta['max_length']
+        length[:minimum] = meta['min_length'] if meta['min_length'] && meta['min_length'] != Float::INFINITY
+        length[:maximum] = meta['max_length'] if meta['max_length'] && meta['min_length'] != Float::INFINITY
         validates meta['programmatic_name'], format:      meta['validate'],
                                              allow_blank: !meta['require'],
                                              presence:    meta['require'],
