@@ -193,6 +193,21 @@ describe Metadata do
         assert m.errors.size > 0
       end
 
+      it 'invalidates when a parameter required is not passed' do
+        m = MyModel.new
+        assert ! m.valid?
+        assert m.errors.include? 'name1'.to_sym
+        assert m.errors.include? 'name2'.to_sym
+      end
+
+      it 'can catch "blank field" errors' do
+        m = MyModel.new
+        assert ! m.valid?
+        assert m.errors['name1'][0] == "can't be blank"
+        assert m.errors['name2'][0] == "can't be blank"
+      end
+
+
     end
 
   end
