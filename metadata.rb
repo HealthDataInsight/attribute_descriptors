@@ -148,6 +148,9 @@ module Metadata
     def metadata
       @@metadata || nil
     end
+    def self.metadata
+      @@metadata || nil
+    end
 
     #
     # (API) Load metadata and perform actions
