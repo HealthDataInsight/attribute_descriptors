@@ -170,13 +170,15 @@ module Metadata
       @@metadata.each do |_field, meta|
         length = {}
         length[:minimum] = meta['min_length'] if meta['min_length'] && \
-                                                 meta['min_length'] != INFINITY
+                                                 meta['min_length'] > 0
         length[:maximum] = meta['max_length'] if meta['max_length'] && \
-                                                 meta['min_length'] != INFINITY
-        validates meta['programmatic_name'], format:      meta['validate'],
-                                             allow_blank: !meta['require'],
-                                             presence:    meta['require'],
-                                             length:      length
+                                                 meta['max_length'] != INFINITY
+        validation_params = {}
+        validation_params[:format]      = meta['validate']
+        validation_params[:allow_blank] = !meta['require']
+        validation_params[:length]      = length if !length.empty?
+        validation_params[:presence]    = true if meta['require']
+        validates meta['programmatic_name'], validation_params
       end
     end
 

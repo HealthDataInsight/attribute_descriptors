@@ -14,7 +14,11 @@ metadata_example = '''Fieldname1:
   require: true
 Fieldname2:
   programmatic_name: name2
-  require: true'''
+  require: true
+Fieldname3:
+  programmatic_name: name3
+  validates: \w{5}
+  require: false'''
 metadata_example_file = Tempfile.new('')
 metadata_example_file.write(metadata_example)
 metadata_example_file.close
@@ -25,7 +29,6 @@ metadata_example_file.close
 # REMOVE THIS!!!!!!!!!!!!!!!! UNUSED GARBAGE!!!!
 #
 metadata_example2_file = Tempfile.new('dsfasdfasgfdhshs ')
-
 
 
 
@@ -166,10 +169,7 @@ describe Metadata do
     describe 'generated validations' do
 
       it 'generates ActiveModel validations' do
-        attrs = {'name1' => 'jojo'}
-        m = MyModel.new(attrs)
-        assert ! m.valid?
-        assert m.errors.include? 'name2'.to_sym
+        assert MyModel.public_methods.include? :validate
       end
 
       it 'has validations that work even when no attributes are passed on initialization' do
@@ -191,6 +191,12 @@ describe Metadata do
         assert m.errors.size == 0
         assert ! m.valid?
         assert m.errors.size > 0
+      end
+
+      it 'doesnt give any error when a non-required parameter is omitted' do
+        attrs = {'name1' => 'jojo', 'name2' => 'coco'}
+        m = MyModel.new(attrs)
+        assert m.valid?
       end
 
       it 'invalidates when a parameter required is not passed' do
