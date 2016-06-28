@@ -1,11 +1,3 @@
-Tests
------
-
-Run tests
-
-    rspec spec/metadata.rb    # common tests
-    rspec spec/validations.rb # test different validations
-
 Usage
 -----
 
@@ -14,7 +6,7 @@ Assuming you have a file containing the metadata for your model you can generate
 config/metadata/user.yml:
 
     Forename:
-        validate: [^\d]*
+        validate: \D*
         require: yes
 
 
@@ -39,6 +31,27 @@ Then you can test it..
 
 You can also access the metadata from the view, very handy to generate a form automatically.
 
+
+Model extras
+------------
+Any model based on metadta, also inherits some extra methods as seen below.
+
+attributes - shows all attributes the model can take
+required_attributes - shows all attributes that are essential
+
+
+
+Tests
+-----
+
+Install dependencies
+
+    bundle
+
+Run tests
+
+    bundle exec rspec spec/metadata.rb    # common tests
+    bundle exec rspec spec/validations.rb # test different validations
 
 
 Metadata attributes

@@ -192,10 +192,24 @@ module Metadata
       end
     end
 
+    # Gives back the attributes of the model
+    def self.attributes
+      @@metadata.collect { |_k, v| v['programmatic_name'] }
+    end
+
+    # Gives back the required attributes of the model
+    def self.required_attributes
+      required = @@metadata.select do |_fieldname, meta|
+        meta['require']
+      end
+      required.collect { |_fieldname, meta| meta['programmatic_name'] }
+    end
+
     private
 
     def programmatic_names
       @@metadata.collect { |_k, v| v['programmatic_name'] }
     end
   end
+
 end
