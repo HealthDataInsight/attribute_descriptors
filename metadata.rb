@@ -172,13 +172,12 @@ module Metadata
       @@metadata = Metadata.load_file(filepath)
 
       # Generate attribute accessors based on metadata
-      programmatic_names = @@metadata.collect { |_k, v| v['programmatic_name'] }
-      programmatic_names.each do |name|
-        class_eval { attr_accessor name }
+      @@metadata.keys.each do |attr_name|
+        class_eval { attr_accessor attr_name }
       end
 
       # Generate validations based on metadata
-      @@metadata.each do |_field, meta|
+      @@metadata.each do |attr_name, meta|
         length = {}
         length[:minimum] = meta['min_length'] if meta['min_length'] && \
                                                  meta['min_length'] > 0
@@ -189,7 +188,7 @@ module Metadata
         validation_params[:allow_blank] = !meta['require']
         validation_params[:length]      = length if !length.empty?
         validation_params[:presence]    = true if meta['require']
-        validates meta['programmatic_name'], validation_params
+        validates attr_name, validation_params
       end
     end
 
@@ -198,29 +197,21 @@ module Metadata
            'to specify the metadata path' if metadata.nil?
 
       # Set attributes
-      attrs.each do |name, value|
-        send("#{name}=", value) if programmatic_names.include? name
+      attrs.each do |attr_name, value|
+        send("#{attr_name}=", value) if self.class.attributes.include? attr_name
       end
     end
 
     # Gives back the attributes of the model
     def self.attributes
-      @@metadata.collect { |_k, v| v['programmatic_name'] }
+      @@metadata.keys
     end
 
     # Gives back the required attributes of the model
     def self.required_attributes
-      required = @@metadata.select do |_fieldname, meta|
-        meta['require']
-      end
-      required.collect { |_fieldname, meta| meta['programmatic_name'] }
+      @@metadata.select { |_k, meta| meta['require'] }.keys
     end
 
-    private
-
-    def programmatic_names
-      @@metadata.collect { |_k, v| v['programmatic_name'] }
-    end
   end
 
 end
