@@ -18,7 +18,8 @@ require 'active_model'
 #    .. results in the metadata structure below..
 #
 # {
-#   "Forename" => {
+#   forename=> {
+#      "description" => "Forename"
 #      "require" => true,
 #      "validate" => /\A.*\z/,
 #      "min" => 0,
@@ -28,7 +29,8 @@ require 'active_model'
 #      "min_num_values" => 0
 #      "programmatic_name" => "forename"
 #   },
-#   "NHS.net email address" => {
+#   nhsmail => {
+#      "description" => "NHS.net email address"
 #      "validate" => /\A.*@\\.nhs\\.net\z/,
 #      "require" => true,
 #      "min" => 0,
