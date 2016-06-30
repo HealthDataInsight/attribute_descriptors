@@ -57,7 +57,7 @@ module Metadata
   def self.load_yaml(yaml, defaults = nil)
     metadata = YAML.load(yaml)
 
-    metadata.each do |fieldname, meta|
+    metadata.each do |attr_name, meta|
       params = defaults || {
         'require'        => true,
         'validate'       => /.*/,
@@ -80,33 +80,33 @@ module Metadata
       #
       if meta.is_a? String # This is always true if compact syntax is used
         asssignments = meta.split(' ')
-        metadata[fieldname] = {}
+        metadata[attr_name] = {}
         asssignments.each do |assignment|
           k, v = assignment.split('=')
-          metadata[fieldname][k] = v
+          metadata[attr_name][k] = v
         end
       end
 
       # Add any missing paramaters from defaults
       params.each do |k, _v|
-        metadata[fieldname][k] = params[k] unless metadata[fieldname].include? k
+        metadata[attr_name][k] = params[k] unless metadata[attr_name].include? k
       end
 
-      # Generate a programmatic_name based on the fieldname if none explicitly
+      # Generate a programmatic_name based on the attr_name if none explicitly
       # given
       #
       # IMPORTANT: Automatically generated programmatic names might be too long.
       #            You are advised to explicitly add the programmatic_name for
       #            each field in your metadata file.
-      if metadata[fieldname]['programmatic_name'].nil?
-        underscored = fieldname.tr(' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{ |}~', '_')
+      if metadata[attr_name]['programmatic_name'].nil?
+        underscored = attr_name.tr(' !"#$%&\'()*+,-./:;<=>?@[\\]^_`{ |}~', '_')
         singly_underscored = underscored.split('_').select { |v| !v.empty? }\
                                         .join('_')
-        metadata[fieldname]['programmatic_name'] = singly_underscored
+        metadata[attr_name]['programmatic_name'] = singly_underscored
       end
 
       # Finally update/evaluate values to the ones given by configuration file
-      metadata[fieldname].each do |name, value|
+      metadata[attr_name].each do |name, value|
         case name
         when 'validate'
           if value.is_a?(String)
@@ -120,9 +120,9 @@ module Metadata
             value = '\A' + value unless value.start_with?('\A')
             value += '\z' unless value.end_with?('\z')
           end
-          metadata[fieldname][name] = Regexp.new(value)
+          metadata[attr_name][name] = Regexp.new(value)
         else
-          metadata[fieldname][name] = value
+          metadata[attr_name][name] = value
         end
       end
     end
@@ -131,10 +131,10 @@ module Metadata
     # since inside the code the programmatic_name makes it easier
     # to access speicfic attributes in the metadata.
     metadata_new = {}
-    metadata.each do |fieldname, name|
-      programmatic_name = metadata[fieldname]['programmatic_name']
-      metadata_new[programmatic_name] = metadata[fieldname]
-      metadata_new[programmatic_name]['description'] = fieldname
+    metadata.each do |attr_name, name|
+      programmatic_name = metadata[attr_name]['programmatic_name']
+      metadata_new[programmatic_name] = metadata[attr_name]
+      metadata_new[programmatic_name]['description'] = attr_name
     end
     metadata = metadata_new
 
