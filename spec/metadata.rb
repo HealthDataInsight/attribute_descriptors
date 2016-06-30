@@ -88,21 +88,30 @@ describe Metadata do
 
   describe 'load_file' do
 
-    it 'generates a structure that uses the field names as keys' do
+    it 'generates a structure that uses the programmatic names as keys' do
       f = metadata_example_file
       parsed = Metadata.load_file(f.path)
       YAML.load_file(f.path).each do |k,v|
-        assert parsed.include? k
+        assert parsed.include? v['programmatic_name']
+      end
+    end
+
+    it 'the structure should have a description for every attribute' do
+      f = metadata_example_file
+      parsed = Metadata.load_file(f.path)
+      YAML.load_file(f.path).each do |k,v|
+        programmatic_name = v['programmatic_name']
+        assert !parsed[programmatic_name]['description'].nil?
       end
     end
 
     it 'generates a structure that includes all values explicitly specified as they were given' do
       f = metadata_example_file
       parsed = Metadata.load_file(f.path)
-      assert parsed['Fieldname1']['programmatic_name'] == 'name1'
-      assert parsed['Fieldname1']['require'] == true
-      assert parsed['Fieldname2']['programmatic_name'] == 'name2'
-      assert parsed['Fieldname2']['require'] == true
+      assert parsed['name1']['programmatic_name'] == 'name1'
+      assert parsed['name1']['require'] == true
+      assert parsed['name2']['programmatic_name'] == 'name2'
+      assert parsed['name2']['require'] == true
     end
 
     it 'forces validation regular expressions to be quoted (".*") or ruby-like (/.*/)' do

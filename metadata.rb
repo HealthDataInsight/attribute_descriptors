@@ -125,6 +125,17 @@ module Metadata
       end
     end
 
+    # Swap attribute description with programmatic_name as key
+    # since inside the code the programmatic_name makes it easier
+    # to access speicfic attributes in the metadata.
+    metadata_new = {}
+    metadata.each do |fieldname, name|
+      programmatic_name = metadata[fieldname]['programmatic_name']
+      metadata_new[programmatic_name] = metadata[fieldname]
+      metadata_new[programmatic_name]['description'] = fieldname
+    end
+    metadata = metadata_new
+
     metadata
   end
 
