@@ -121,6 +121,8 @@ module Metadata
             value += '\z' unless value.end_with?('\z')
           end
           metadata[attr_name][name] = Regexp.new(value)
+        when 'valid_num_values'
+          metadata[attr_name][name] = value.to_s
         else
           metadata[attr_name][name] = value
         end
@@ -179,19 +181,7 @@ module Metadata
       end
 
       # Generate validations based on metadata
-      @@metadata.each do |attr_name, meta|
-        length = {}
-        length[:minimum] = meta['min_length'] if meta['min_length'] && \
-                                                 meta['min_length'] > 0
-        length[:maximum] = meta['max_length'] if meta['max_length'] && \
-                                                 meta['max_length'] != INFINITY
-        validation_params = {}
-        validation_params[:format]      = meta['validate']
-        validation_params[:allow_blank] = !meta['require']
-        validation_params[:length]      = length if !length.empty?
-        validation_params[:presence]    = true if meta['require']
-        validates attr_name, validation_params
-      end
+      generate_validations
     end
 
     def initialize(attrs = {})
@@ -212,6 +202,62 @@ module Metadata
     # Gives back the required attributes of the model
     def self.required_attributes
       @@metadata.select { |_k, meta| meta['require'] }.keys
+    end
+
+    private
+
+    def self.generate_validations
+      @@metadata.each do |attr_name, meta|
+        length = {}
+        validation_params = {}
+
+        # Length for single item
+        length[:minimum] = meta['min_length'] if meta['min_length'] && \
+                                                 meta['min_length'] > 0
+        length[:maximum] = meta['max_length'] if meta['max_length'] && \
+                                                 meta['max_length'] != INFINITY
+
+        # Length for collection
+        if meta['valid_num_values']
+          range = meta['valid_num_values']
+          case range
+          # NOT SUPPORTED YET
+          # when /\A\d*\-\d*\z/ # ie. 2-5
+          #   min, max = range.split('-')
+          #   length[:minimum] = min
+          #   length[:maximum] = max
+          # NOT SUPPORTED YET
+          # when /\A\d*\+\z/ # ie. 5+
+          #   length[:minimum] = range.to_i
+          when /\A\d*\z/ # ie. 5
+            length[:minimum] = range.to_i
+            length[:maximum] = range.to_i
+
+            # Workaround for TODO *
+            if length[:minimum] == 1
+              validation_params[:inclusion] = meta['valid_values'] if meta['valid_values']
+            end
+          else
+            print("ERROR: Can't recognize given range '#{range}'")
+          end
+        end
+
+        validation_params[:presence]    = true if meta['require']
+        validation_params[:allow_blank] = !meta['require']
+        validation_params[:format]      = meta['validate']
+        validation_params[:length]      = length if !length.empty?
+        # TODO (*): Make inclusion work for checking arrays. Rails only allows
+        #       checking for membership of a single element.
+        # Workaround line : ~235
+
+        validates attr_name, validation_params
+      end
+    end
+
+    # Validate colletion
+    def self.validate_collection
+
+
     end
 
   end
