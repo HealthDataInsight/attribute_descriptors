@@ -230,13 +230,11 @@ module Metadata
           # when /\A\d*\+\z/ # ie. 5+
           #   length[:minimum] = range.to_i
           when /\A\d*\z/ # ie. 5
-            length[:minimum] = range.to_i
-            length[:maximum] = range.to_i
+            #length[:minimum] = range.to_i
+            #length[:maximum] = range.to_i
 
             # Workaround for TODO *
-            if length[:minimum] == 1
-              validation_params[:inclusion] = meta['valid_values'] if meta['valid_values']
-            end
+            validation_params[:inclusion] = meta['valid_values'] if meta['valid_values']
           else
             print("ERROR: Can't recognize given range '#{range}'")
           end

@@ -39,7 +39,7 @@ metafile.close
 
 
 
-describe 'field validations' do
+describe 'attribute validations' do
   include Test::Unit::Assertions
   METADATA = Metadata.load_file(metafile.path)
   METADATA_PATH  = metafile.path
