@@ -254,12 +254,6 @@ module Metadata
       end
     end
 
-    # Validate colletion
-    def self.validate_collection
-
-
-    end
-
   end
 
 end
