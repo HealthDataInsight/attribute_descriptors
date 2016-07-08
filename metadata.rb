@@ -174,14 +174,8 @@ module Metadata
     #
     def self.generated_from(filepath)
       @@metadata = Metadata.load_file(filepath)
-
-      # Generate attribute accessors based on metadata
-      @@metadata.keys.each do |attr_name|
-        class_eval { attr_accessor attr_name }
-      end
-
-      # Generate validations based on metadata
-      generate_validations
+      generate_attributes_from_metadata
+      generate_validations_from_metadata
     end
 
     def initialize(attrs = {})
@@ -206,7 +200,7 @@ module Metadata
 
     private
 
-    def self.generate_validations
+    def self.generate_validations_from_metadata
       @@metadata.each do |attr_name, meta|
         length = {}
         validation_params = {}
@@ -249,6 +243,12 @@ module Metadata
         # Workaround line : ~235
 
         validates attr_name, validation_params
+      end
+    end
+
+    def self.generate_attributes_from_metadata
+      @@metadata.keys.each do |attr_name|
+        class_eval { attr_accessor attr_name }
       end
     end
 
