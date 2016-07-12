@@ -42,7 +42,7 @@ require 'active_model'
 #   },
 # }
 #
-module Metadata
+module AttributeDescriptors
 
   INFINITY = Float::INFINITY
 
@@ -173,7 +173,7 @@ module Metadata
     # This runs on class level (aka before instance initialization)
     #
     def self.generated_from(filepath)
-      @@metadata = Metadata.load_file(filepath)
+      @@metadata = AttributeDescriptors.load_file(filepath)
       self.generate_attributes_from_metadata
       self.generate_validations_from_metadata
     end
