@@ -54,15 +54,82 @@ Run tests
     bundle exec rspec spec/validations.rb # test different validations
 
 
-Metadata attributes
+Metadata options
 -------------------
 
-The below attributes are being used for the generation of attributes and validations. You can still add your own metadata entries.
+The below options can be use to describe the data. Based on the options, the data
+will be presented in a specific way when used for input (form), output and different
+validation rules will be generated.
 
-`validate` - regulare expression being used to validate the field. The regular expression tries to match the WHOLE field
+You can add your own metadata entries as long as they don't collide with the ones below.
 
-`programmatic_name` - name that will be used in the code. If left blank, this will be a filtered version of the field name
+*`validate`* - regular expression being used to validate the field. The regular expression tries to match the WHOLE field. For example `\w*` is the same as ``/\A\w*\z/` in pure Ruby.
 
-`require` - tells if this field is required
+*`programmatic_name`* - name for the data hat will be used everywhere in the code
 
-`values` - list of permitted values for this data
+*`require`* - tells if this field is required when inserting new data
+
+*`values`* - list of permitted values for this data. If used in a form, this will
+             generate a dropdown or selection input field.
+
+
+Example (TODO)
+-------
+
+Assume we have this metadata for describing a user at *config/metadata/user.yml*:
+```
+First name:
+  programmatic_name: firstname
+  valid_pattern: \D*
+Last name:
+  programmatic_name: lastname
+  valid_pattern: \D*
+Age:
+  programmatic_name: age
+  input_instruction: Choose your age
+  valid_range: 18-99
+Occupation:
+  programmatic_name: occupation
+  input_instruction: Choose your occupation
+  valid_num_values: 1
+  valid_values:
+    - Student
+    - Employee
+    - Employer
+    - Other
+Hobbies:
+  programmatic_name: hobbies
+  input_instruction: Choose 3 hobbies
+  valid_num_values: 3+
+  valid_values:
+    - Music
+    - Art
+    - Sports
+    - Reading
+    - Other
+```
+
+First load the metadata in your model
+```
+include 'metadata'
+
+class User
+  generate_attributes_from_metadata 'config/metadata/user.yml'
+  generate_validations_from_metadata 'config/metadata/user.yml'
+  generate_form_helpers_from_metadata 'config/metadata/user.yml'
+end
+```
+
+Then you can access many things at instance or class level
+```
+user = User.new({'name' => 'John'})
+user.attributes          # -> { name => John }
+user.required_attributes # -> {}
+user.attribute_names     # -> [ name ]
+user.attribute_values    # -> [ John ]
+
+
+User.attribute_names     # -> [ name, lastname, age ]
+User.name.as_form_field  # -> ..<input name="firstname" ..
+User.age.as_form_field   # -> ..<select name="age" ..
+```

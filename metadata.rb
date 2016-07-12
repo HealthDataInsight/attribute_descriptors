@@ -174,8 +174,8 @@ module Metadata
     #
     def self.generated_from(filepath)
       @@metadata = Metadata.load_file(filepath)
-      generate_attributes_from_metadata
-      generate_validations_from_metadata
+      self.generate_attributes_from_metadata
+      self.generate_validations_from_metadata
     end
 
     def initialize(attrs = {})
@@ -197,8 +197,6 @@ module Metadata
     def self.required_attributes
       @@metadata.select { |_k, meta| meta['require'] }.keys
     end
-
-    private
 
     def self.generate_validations_from_metadata
       @@metadata.each do |attr_name, meta|
