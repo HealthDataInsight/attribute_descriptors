@@ -66,40 +66,40 @@ describe 'attribute validations' do
     m = MyModel.new({'namelike' => 'Seferidis'})
     assert m.valid?
   end
-  #
-  # it "very simple test 2" do
-  #   m = MyModel.new({'namelike' => 'Seferidis the 1st'})
-  #   assert ! m.valid?
-  # end
-  #
-  # it "very simple test 3" do
-  #   m = MyModel.new({'gmail_email' => 'manossef@gmail.com'})
-  #   assert m.valid?
-  # end
-  #
-  # it "very simple test 4" do
-  #   m = MyModel.new({'gmail_email' => 'manossef@yahoo.com'})
-  #   assert ! m.valid?
-  # end
-  #
-  # it "very simple test 5" do
-  #   m = MyModel.new({'alphanumeric' => '12345'})
-  #   assert ! m.valid?
-  # end
-  #
-  # # Run them all
-  # METADATA.each do |fieldname, meta|
-  #   describe "'#{fieldname}'" do
-  #     it "should acknowledge '#{meta['example']}' as valid" do
-  #       attrs = {meta['programmatic_name'] => meta['example']}
-  #       assert MyModel.new(attrs).valid?
-  #     end
-  #     it "should acknowledge '#{meta['invalid']}' as invalid" do
-  #       attrs = {meta['programmatic_name'] => meta['invalid']}
-  #       assert ! MyModel.new(attrs).valid?
-  #     end
-  #   end
-  # end
+  
+  it "very simple test 2" do
+    m = MyModel.new({'namelike' => 'Seferidis the 1st'})
+    assert ! m.valid?
+  end
+
+  it "very simple test 3" do
+    m = MyModel.new({'gmail_email' => 'manossef@gmail.com'})
+    assert m.valid?
+  end
+
+  it "very simple test 4" do
+    m = MyModel.new({'gmail_email' => 'manossef@yahoo.com'})
+    assert ! m.valid?
+  end
+
+  it "very simple test 5" do
+    m = MyModel.new({'alphanumeric' => '12345'})
+    assert ! m.valid?
+  end
+
+  # Run them all
+  METADATA.each do |fieldname, meta|
+    describe "'#{fieldname}'" do
+      it "should acknowledge '#{meta['example']}' as valid" do
+        attrs = {meta['programmatic_name'] => meta['example']}
+        assert MyModel.new(attrs).valid?
+      end
+      it "should acknowledge '#{meta['invalid']}' as invalid" do
+        attrs = {meta['programmatic_name'] => meta['invalid']}
+        assert ! MyModel.new(attrs).valid?
+      end
+    end
+  end
 
 
 end
