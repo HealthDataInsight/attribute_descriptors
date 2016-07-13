@@ -9,7 +9,7 @@ class TestAttributeDescriptorsUsage < Test::Unit::TestCase
     # A model based on METADATA1
     class MyModel1
       extend AttributeDescriptors::ClassAttributes
-      generated_from_meta({
+      attr_metadata_meta({
         'attr1': {
           'description' => 'blahblah'
         }
@@ -18,7 +18,7 @@ class TestAttributeDescriptorsUsage < Test::Unit::TestCase
     previous_model1_meta = MyModel1.metadata
     class MyModel2
       extend AttributeDescriptors::ClassAttributes
-      generated_from_meta({
+      attr_metadata_meta({
         'attr1': {
           'description' => 'OVERRIDEN!'
         }
