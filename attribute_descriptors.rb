@@ -4,7 +4,8 @@ require 'active_model'
 # This module let's you describe data in a YAML file to generate attribute
 # view and validation helpers accessible at the class level.
 #
-# ie. User.username.as_input_field
+# ie. In a form you can use `User.username.as_input_field`
+# ie. In a Rails controller you can use `@user.valid?`
 #
 # For more information you can contact the author at manossef@gmail.com
 #
