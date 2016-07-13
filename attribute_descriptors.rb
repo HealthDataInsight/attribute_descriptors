@@ -108,28 +108,36 @@ module AttributeDescriptors
   end
 
   #
+  # (API)
+  #
   # This class, once inherited let's you generate attributes and validations
   # based on metadata in a YAML file.
+  #
+  # NOTICE: 'self' refers to the class extending this module.
   #
   module ClassAttributes
 
     #
-    # (API) Access metadata
+    # (API) Access the class metadata
     #
     def metadata
-      @@metadata || nil
-    end
-    def self.metadata
-      @@metadata || nil
+      self.class_variable_get(:@@metadata)
     end
 
     #
-    # (API) Load metadata and perform actions
-    #
-    # This runs on class level (aka before instance initialization)
+    # (API) Load metadata from file
     #
     def generated_from(filepath)
-      @@metadata = AttributeDescriptors.load_file(filepath)
+      generated_from_meta(AttributeDescriptors.load_file(filepath))
+    end
+
+    #
+    # (API) Load metadata
+    #
+    def generated_from_meta(metadata)
+
+      # Attach the metadata to the class (not the module)
+      self.class_variable_set(:@@metadata, metadata)
 
       # Include Rails models
       include ActiveModel::Validations
@@ -140,7 +148,7 @@ module AttributeDescriptors
 
     # Gives back the attributes of the model
     def attributes
-      @@metadata.keys
+      metadata.keys
     end
 
     # Gives back the required attributes of the model
@@ -149,7 +157,7 @@ module AttributeDescriptors
     end
 
     def generate_validations
-      @@metadata.each do |attr_name, meta|
+      metadata.each do |attr_name, meta|
         length = {}
         validation_params = {}
 
@@ -195,7 +203,7 @@ module AttributeDescriptors
     end
 
     def generate_attr_accessors
-      @@metadata.keys.each do |attr_name|
+      metadata.keys.each do |attr_name|
         class_eval { attr_accessor attr_name }
       end
     end
