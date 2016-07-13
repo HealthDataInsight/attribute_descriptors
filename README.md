@@ -42,24 +42,6 @@ attributes - shows all attributes the model can take
 required_attributes - shows all attributes that are essential
 
 
-
-Tests
------
-
-Install dependencies
-
-    bundle
-
-Run tests
-
-    bundle exec rspec spec/metadata.rb    # common tests
-    bundle exec rspec spec/validations.rb # test different validations
-
-Run them all
-
-    time (bundle exec rspec spec/validations.rb && bundle exec rspec spec/validations_advanced.rb && bundle exec rspec spec/metadata.rb)
-
-
 AttributeDescriptors options
 -------------------
 
