@@ -1,5 +1,3 @@
-require 'active_model'
-
 #
 # This module let's you describe data in a YAML file to generate attribute
 # view and validation helpers accessible at the class level.
@@ -143,6 +141,7 @@ module AttributeDescriptors
       self.class_variable_set(:@@metadata, metadata)
 
       # Include Rails models
+      require 'active_model'
       include ActiveModel::Validations
 
       generate_attr_accessors
