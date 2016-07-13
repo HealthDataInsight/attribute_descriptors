@@ -6,6 +6,8 @@ require 'active_model'
 #
 # ie. User.username.as_input_field
 #
+# For more information you can contact the author at manossef@gmail.com
+#
 module AttributeDescriptors
 
   INFINITY = Float::INFINITY
