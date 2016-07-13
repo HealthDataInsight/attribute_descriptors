@@ -7,5 +7,4 @@ gem "rails", "3.2"
 #gem "appraisal" # for testing against different Rails versions
 
 gem "awesome_print"
-gem "rspec"
 gem "test-unit"
