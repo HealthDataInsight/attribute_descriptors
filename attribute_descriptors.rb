@@ -198,7 +198,7 @@ module AttributeDescriptors
     #
     # (API) Load metadata from file
     #
-    def attr_metadata(filepath)
+    def attr_metadata_at(filepath)
       attr_metadata(AttributeDescriptors.load_file(filepath))
     end
 
