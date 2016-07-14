@@ -181,8 +181,10 @@ module AttributeDescriptors
   #
   # (API)
   #
-  # This class, once inherited let's you generate attributes and validations
-  # based on metadata in a YAML file.
+  # This class can be extended from a class in order to attach metadata
+  # for the attributes for that class. You can afterwards access the metadata
+  # directly or use the extra functionality provided like form views and
+  # validations.
   #
   # NOTICE: 'self' refers to the class extending this module.
   #
