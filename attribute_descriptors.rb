@@ -189,11 +189,12 @@ module AttributeDescriptors
   module Attributes
 
     #
-    # (API) Access the class metadata
+    # (API) Access the attribute descriptors of the class
     #
     def metadata
       class_variable_get(:@@metadata)
     end
+    alias attr_descriptors metadata
 
     #
     # (API) Load metadata from file
