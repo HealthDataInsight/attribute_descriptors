@@ -108,6 +108,76 @@ module AttributeDescriptors
     metadata
   end
 
+
+
+  # This class provides an interface to access all extras for every attribute.
+  #
+  # For example in User.firstname.as_input_field the User.firstname is an
+  # instance of this class.
+  #
+  class ClassAttribute
+
+    @attr_meta
+
+    # Allow access to metadata with dot-notation
+    def method_missing(meth, *args, &block)
+      method_name = meth.to_s
+      if @attr_meta && @attr_meta.include?(method_name)
+        return @attr_meta[method_name]
+      else
+        super
+      end
+    end
+
+    def initialize(attr_meta)
+      @attr_meta   = attr_meta
+    end
+
+    # Generates a form input field in HTML based on the metadata
+    #
+    # Looks for these values in metadata:
+    #   * programmatic_name
+    #   * placeholder
+    #   * description
+    #   * valid_pattern
+    #   * valid_values
+    #
+    def as_input_field(prefill=nil)
+      attr_name   = @attr_meta['programmatic_name']
+      placeholder = @attr_meta['placeholder']
+      attr_description = @attr_meta['description']
+
+      html_label = "<label for='#{attr_name}'>#{attr_description}</label>"
+
+      # Text field
+      if @attr_meta["valid_values"].nil?
+        html_placeholder = placeholder ? "placeholder='#{placeholder}'" : ''
+        html_value       = prefill ? "value='#{prefill}'" : ''
+        html = "<input id='#{attr_name}' name='#{attr_name}' #{html_placeholder} type='text' #{html_value} />\n"
+
+      # Dropdown
+      else
+        if placeholder
+          instruction_option = [ placeholder ]
+        else
+          instruction_option = []
+        end
+        selection_options = instruction_option + @attr_meta["valid_values"]
+        html = "<select id='#{attr_name}' name='#{attr_name}'>\n"
+        selection_options.each do |option_value|
+          html_selected = (option_value == prefill) ? " selected" : ''
+          html += "<option value='#{option_value}'#{html_selected}>#{option_value}</option>\n"
+        end
+        html += "</select>"
+
+      end
+      return "#{html_label}\n#{html}\n"
+    end
+
+  end
+
+
+
   #
   # (API)
   #
@@ -122,7 +192,7 @@ module AttributeDescriptors
     # (API) Access the class metadata
     #
     def metadata
-      self.class_variable_get(:@@metadata)
+      class_variable_get(:@@metadata)
     end
 
     #
@@ -138,7 +208,7 @@ module AttributeDescriptors
     def attr_metadata(metadata)
 
       # Attach the metadata to the class (not the module)
-      self.class_variable_set(:@@metadata, metadata)
+      class_variable_set(:@@metadata, metadata)
 
       # Include Rails models
       require 'active_model'
@@ -146,6 +216,7 @@ module AttributeDescriptors
 
       generate_attr_accessors
       generate_validations
+      generate_attr_wrappers
     end
 
     # Gives back the attributes of the model
@@ -204,11 +275,29 @@ module AttributeDescriptors
       end
     end
 
+
+    # NOTICE: This is for the instances in contrast to the attr wrappers
+    #         which are at the class level.
     def generate_attr_accessors
       metadata.keys.each do |attr_name|
         class_eval { attr_accessor attr_name }
       end
     end
+
+    # Create attribute wrappers for further functionality on each attribute
+    #
+    # For example you can aUser.name points to <ClassAttribute: @@metadata={..}>
+    def generate_attr_wrappers
+        class << self
+          metadata = class_variable_get(:@@metadata)
+          metadata.each do |attr_name, meta|
+            define_method(attr_name) do
+              ClassAttribute.new(meta)
+            end
+          end
+        end
+    end
+
 
   end
 

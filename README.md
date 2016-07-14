@@ -1,3 +1,26 @@
+Intro
+-----
+The gem let's you generate forms and validations based
+on simple human-readable YAML files.
+
+
+Say you have the metadata user.yml:
+
+    First name:
+      programmatic_name: firstname
+      description: The forename of a person.
+      valid_pattern: /\D*/
+    Last name:
+      programmatic_name: lastname
+      valid_pattern: /\D*/
+
+You get these goodies:
+
+  1. Generates Rails validations automatically: ie. `user.valid?`
+  2. Let's you access metadata of an attribute: ie. `User.firstname.description`
+  3. Adds form helpers on the class: ie. `User.firstname.as_input_field`
+
+
 Usage
 -----
 
