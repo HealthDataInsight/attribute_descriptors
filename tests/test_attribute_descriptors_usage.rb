@@ -18,11 +18,11 @@ class TestAttributeDescriptorsUsage < Test::Unit::TestCase
     },
   }
   class MyModel1
-    extend AttributeDescriptors::ClassAttributes
+    extend AttributeDescriptors::Attributes
     attr_metadata META1
   end
   class MyModel2
-    extend AttributeDescriptors::ClassAttributes
+    extend AttributeDescriptors::Attributes
     attr_metadata META2
   end
 
@@ -41,9 +41,9 @@ class TestAttributeDescriptorsUsage < Test::Unit::TestCase
     assert MyModel1.attr1
     assert MyModel2.attr1
     assert MyModel2.attr2
-    assert MyModel1.attr1.class == AttributeDescriptors::ClassAttribute
-    assert MyModel2.attr1.class == AttributeDescriptors::ClassAttribute
-    assert MyModel2.attr2.class == AttributeDescriptors::ClassAttribute
+    assert MyModel1.attr1.class == AttributeDescriptors::Attribute
+    assert MyModel2.attr1.class == AttributeDescriptors::Attribute
+    assert MyModel2.attr2.class == AttributeDescriptors::Attribute
   end
 
 

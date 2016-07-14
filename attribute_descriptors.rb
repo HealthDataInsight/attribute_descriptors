@@ -115,7 +115,7 @@ module AttributeDescriptors
   # For example in User.firstname.as_input_field the User.firstname is an
   # instance of this class.
   #
-  class ClassAttribute
+  class Attribute
 
     @attr_meta
 
@@ -186,7 +186,7 @@ module AttributeDescriptors
   #
   # NOTICE: 'self' refers to the class extending this module.
   #
-  module ClassAttributes
+  module Attributes
 
     #
     # (API) Access the class metadata
@@ -286,13 +286,13 @@ module AttributeDescriptors
 
     # Create attribute wrappers for further functionality on each attribute
     #
-    # For example you can aUser.name points to <ClassAttribute: @@metadata={..}>
+    # For example you can aUser.name points to <Attribute: @@metadata={..}>
     def generate_attr_wrappers
         class << self
           metadata = class_variable_get(:@@metadata)
           metadata.each do |attr_name, meta|
             define_method(attr_name) do
-              ClassAttribute.new(meta)
+              Attribute.new(meta)
             end
           end
         end

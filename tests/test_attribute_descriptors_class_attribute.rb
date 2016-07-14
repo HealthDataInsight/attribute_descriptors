@@ -1,10 +1,10 @@
 require_relative 'bootstrap'
 
 
-class TestAttributeDescriptorsClassAttribute < Test::Unit::TestCase
+class TestAttributeDescriptorsAttribute < Test::Unit::TestCase
 
   class MyModel
-    extend AttributeDescriptors::ClassAttributes
+    extend AttributeDescriptors::Attributes
     attr_metadata({
       'digits' => {
         'valid_pattern'     => /\A\d*\z/,
