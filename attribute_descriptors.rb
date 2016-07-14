@@ -188,7 +188,7 @@ module AttributeDescriptors
   #
   # NOTICE: 'self' refers to the class extending this module.
   #
-  module Attributes
+  module ClassAttributes
 
     #
     # (API) Access the attribute descriptors of the class

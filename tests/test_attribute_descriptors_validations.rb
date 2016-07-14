@@ -29,7 +29,7 @@ gmail email:
 
 
   class MyModel
-    extend AttributeDescriptors::Attributes
+    extend AttributeDescriptors::ClassAttributes
     attr_descriptors METADATA
 
     def initialize(attrs = {})
@@ -94,7 +94,7 @@ Favorite animals:
 ''')
 
   class MyModel2
-    extend AttributeDescriptors::Attributes
+    extend AttributeDescriptors::ClassAttributes
     attr_descriptors METADATA
 
     def initialize(attrs = {})
