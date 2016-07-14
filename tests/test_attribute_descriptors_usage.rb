@@ -19,11 +19,11 @@ class TestAttributeDescriptorsUsage < Test::Unit::TestCase
   }
   class MyModel1
     extend AttributeDescriptors::Attributes
-    attr_metadata META1
+    attr_descriptors META1
   end
   class MyModel2
     extend AttributeDescriptors::Attributes
-    attr_metadata META2
+    attr_descriptors META2
   end
 
 

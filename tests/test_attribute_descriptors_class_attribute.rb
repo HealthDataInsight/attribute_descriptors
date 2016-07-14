@@ -5,7 +5,7 @@ class TestAttributeDescriptorsAttribute < Test::Unit::TestCase
 
   class MyModel
     extend AttributeDescriptors::Attributes
-    attr_metadata({
+    attr_descriptors({
       'digits' => {
         'valid_pattern'     => /\A\d*\z/,
         'description'       => 'description for digits',

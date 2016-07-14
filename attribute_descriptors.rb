@@ -198,14 +198,14 @@ module AttributeDescriptors
     #
     # (API) Load metadata from file
     #
-    def attr_metadata_at(filepath)
-      attr_metadata(AttributeDescriptors.load_file(filepath))
+    def attr_descriptors_from(filepath)
+      attr_descriptors(AttributeDescriptors.load_file(filepath))
     end
 
     #
     # (API) Load metadata
     #
-    def attr_metadata(metadata)
+    def attr_descriptors(metadata)
 
       # Attach the metadata to the class (not the module)
       class_variable_set(:@@metadata, metadata)

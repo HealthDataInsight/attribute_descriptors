@@ -30,7 +30,7 @@ gmail email:
 
   class MyModel
     extend AttributeDescriptors::Attributes
-    attr_metadata METADATA
+    attr_descriptors METADATA
 
     def initialize(attrs = {})
       attrs.each do |attr_name, value|
@@ -95,7 +95,7 @@ Favorite animals:
 
   class MyModel2
     extend AttributeDescriptors::Attributes
-    attr_metadata METADATA
+    attr_descriptors METADATA
 
     def initialize(attrs = {})
       attrs.each do |attr_name, value|
