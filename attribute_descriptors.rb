@@ -226,7 +226,7 @@ module AttributeDescriptors
 
     # Gives back the required attributes of the model
     def required_attributes
-      @@metadata.select { |_k, meta| meta['require'] }.keys
+      metadata.select { |_k, meta| meta['require'] }.keys
     end
 
     def generate_validations
