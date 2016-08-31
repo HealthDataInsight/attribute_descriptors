@@ -216,9 +216,9 @@ module AttributeDescriptors
       require 'active_model'
       include ActiveModel::Validations
 
-      generate_attr_accessors
-      generate_validations
-      generate_attr_wrappers
+      generate_attr_accessors(metadata)
+      generate_validations(metadata)
+      generate_attr_wrappers(metadata)
     end
 
     # Gives back the attributes of the model
@@ -231,7 +231,7 @@ module AttributeDescriptors
       metadata.select { |_k, meta| meta['require'] }.keys
     end
 
-    def generate_validations
+    def generate_validations(metadata)
       metadata.each do |attr_name, meta|
         length = {}
         validation_params = {}
@@ -280,7 +280,7 @@ module AttributeDescriptors
 
     # NOTICE: This is for the instances in contrast to the attr wrappers
     #         which are at the class level.
-    def generate_attr_accessors
+    def generate_attr_accessors(metadata)
       metadata.keys.each do |attr_name|
         class_eval { attr_accessor attr_name }
       end
@@ -289,7 +289,7 @@ module AttributeDescriptors
     # Create attribute wrappers for further functionality on each attribute
     #
     # For example you can aUser.name points to <Attribute: @@metadata={..}>
-    def generate_attr_wrappers
+    def generate_attr_wrappers(metadata)
         class << self
           metadata = class_variable_get(:@@metadata)
           metadata.each do |attr_name, meta|
