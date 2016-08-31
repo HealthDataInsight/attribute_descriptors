@@ -196,7 +196,6 @@ module AttributeDescriptors
     def metadata
       class_variable_get(:@@metadata)
     end
-    alias attr_descriptors metadata
 
     #
     # (API) Load metadata from file
