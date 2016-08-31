@@ -306,7 +306,7 @@ module AttributeDescriptors
 
     # Create attribute wrappers for further functionality on each attribute
     #
-    # For example you can aUser.name points to <Attribute: @@metadata={..}>
+    # For example you can have User.name points to <Attribute: @@metadata={..}>
     def generate_attr_wrappers(metadata)
         class << self
           metadata = class_variable_get(:@@metadata)
