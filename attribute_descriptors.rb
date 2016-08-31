@@ -300,11 +300,12 @@ module AttributeDescriptors
     #         which are at the class level.
     def generate_attr_accessors(metadata)
       metadata.keys.each do |attr_name|
-        class_eval { attr_accessor attr_name }
+        attr_accessor attr_name
       end
     end
 
-    # Create attribute wrappers for further functionality on each attribute
+    # Attach an Attribute object to the class for every attribute
+    # in order to allow further functionality like view helpers, etc.
     #
     # For example you can have User.name points to <Attribute: @@metadata={..}>
     def generate_attr_wrappers(metadata)
