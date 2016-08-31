@@ -117,8 +117,6 @@ module AttributeDescriptors
   #
   class Attribute
 
-    @attr_meta
-
     # Allow access to metadata with dot-notation
     def method_missing(meth, *args, &block)
       method_name = meth.to_s
