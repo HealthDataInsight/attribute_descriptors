@@ -200,14 +200,34 @@ module AttributeDescriptors
     #
     # (API) Load metadata from file
     #
-    def attr_descriptors_from(filepath)
-      attr_descriptors(AttributeDescriptors.load_file(filepath))
+    def attr_descriptors_from(filepath, params={})
+      metadata = AttributeDescriptors.load_file(filepath)
+      attr_descriptors(metadata, params)
     end
 
     #
     # (API) Load metadata
     #
-    def attr_descriptors(metadata)
+    def attr_descriptors(metadata, params={})
+
+      # Filter out or in attributes
+      if params.include? :except
+        params[:except].each do |attr_name|
+          metadata.delete(attr_name) || fail("'#{attr_name}' is not a valid attribute.")
+        end
+      end
+
+      if params.include? :only
+        metadata_new = {}
+        params[:only].each do |attr_name|
+          if metadata.include?(attr_name)
+            metadata_new[attr_name] = metadata[attr_name]
+          else
+            fail("'#{attr_name}' is not a valid attribute.")
+          end
+        end
+        metadata = metadata_new
+      end
 
       # Attach the metadata to the class (not the module)
       class_variable_set(:@@metadata, metadata)

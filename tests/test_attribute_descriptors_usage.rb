@@ -60,4 +60,26 @@ class TestAttributeDescriptorsUsage < Test::Unit::TestCase
     assert MyModel1.attr1.as_input_field
   end
 
+  test "you should be able to exclude attributes from the metadata" do
+    class MyModel3
+      extend AttributeDescriptors::ClassAttributes
+      attr_descriptors META2, {
+                              except: %w(attr1)
+                             }
+    end
+    assert !MyModel3.metadata.include?('attr1')
+    assert MyModel3.metadata.include?('attr2')
+  end
+
+  test "you should be able to cherry-pick attributes from the metadata" do
+    class MyModel3
+      extend AttributeDescriptors::ClassAttributes
+      attr_descriptors META2, {
+                              only: %w(attr2)
+                             }
+    end
+    assert !MyModel3.metadata.include?('attr1')
+    assert MyModel3.metadata.include?('attr2')
+  end
+
 end
