@@ -111,19 +111,43 @@ module AttributeDescriptors
     metadata
   end
 
+  # Filter metadata depending on parameters
+  def self.apply_metadata_filtering(metadata, params)
+    metadata = metadata.dup
+
+    # Filter out attributes
+    if params.include? :except
+      params[:except].each do |attr_name|
+        metadata.delete(attr_name) || fail("'#{attr_name}' is not a valid attribute.")
+      end
+    end
+
+    # Select specific attributes
+    if params.include? :only
+      metadata_new = {}
+      params[:only].each do |attr_name|
+        if metadata.include?(attr_name)
+          metadata_new[attr_name] = metadata[attr_name]
+        else
+          fail("'#{attr_name}' is not a valid attribute.")
+        end
+      end
+      metadata = metadata_new
+    end
+
+    metadata
+  end
+
 
   class GenericValidator < ActiveModel::Validator
     def validate(record)
       metadata = record.class.class_variable_get(:@@metadata)
 
       # SKip validations for specific attributes
-      #skip_validation = record.instance_variable_get(:@skip_validation)
-
-      #if !skip_validation
-      #  record.errors[:name] << 'test'
-      #end
-
-      #@validations only:
+      validations_params = record.instance_variable_get(:@validations)
+      if validations_params
+        metadata = AttributeDescriptors.apply_metadata_filtering(metadata, validations_params)
+      end
 
       metadata.each do |attr_name, meta|
         value = record.send(attr_name)
@@ -280,7 +304,7 @@ module AttributeDescriptors
     def attr_descriptors(metadata, params={})
       include ActiveModel::Validations
 
-      metadata = apply_metadata_filtering(metadata, params)
+      metadata = AttributeDescriptors.apply_metadata_filtering(metadata, params)
 
       # Attach the metadata to the class (not the module)
       class_variable_set(:@@metadata, metadata)
@@ -331,34 +355,6 @@ module AttributeDescriptors
         end
       end
     end
-
-    # Filter metadata depending on parameters
-    def apply_metadata_filtering(metadata, params)
-      metadata = metadata.dup
-
-      # Filter out attributes
-      if params.include? :except
-        params[:except].each do |attr_name|
-          metadata.delete(attr_name) || fail("'#{attr_name}' is not a valid attribute.")
-        end
-      end
-
-      # Select specific attributes
-      if params.include? :only
-        metadata_new = {}
-        params[:only].each do |attr_name|
-          if metadata.include?(attr_name)
-            metadata_new[attr_name] = metadata[attr_name]
-          else
-            fail("'#{attr_name}' is not a valid attribute.")
-          end
-        end
-        metadata = metadata_new
-      end
-
-      metadata
-    end
-
 
   end
 

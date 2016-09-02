@@ -31,6 +31,8 @@ gmail email:
   class MyModel
     extend AttributeDescriptors::ClassAttributes
     attr_descriptors METADATA
+    generate_attr_accessors
+    generate_validations
 
     def initialize(attrs = {})
       attrs.each do |attr_name, value|
@@ -64,7 +66,7 @@ gmail email:
     assert ! m.valid?
   end
 
-  test "every single attribute"
+  # every single attribute
   METADATA.each do |fieldname, meta|
     test "#{fieldname} should acknowledge '#{meta['example']}' as valid" do
       attrs = {meta['programmatic_name'] => meta['example']}
@@ -96,6 +98,8 @@ Favorite animals:
   class MyModel2
     extend AttributeDescriptors::ClassAttributes
     attr_descriptors METADATA
+    generate_attr_accessors
+    generate_validations
 
     def initialize(attrs = {})
       attrs.each do |attr_name, value|
@@ -110,7 +114,7 @@ Favorite animals:
   #   m = MyModel.new({'fav_animals' => 'g'})
   #   assert !m.valid?
   # end
-
+  #
   # test "invalidate an attribute if not exact numbers of values are given" do
   #   m = MyModel.new({'fav_animals' => ['a']})
   #   assert !m.valid?
