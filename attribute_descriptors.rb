@@ -1,3 +1,5 @@
+require 'active_model'
+
 #
 # This module let's you describe data in a YAML file to generate attribute
 # view and validation helpers accessible at the class level.
@@ -109,6 +111,22 @@ module AttributeDescriptors
   end
 
 
+  class GenericValidator < ActiveModel::Validator
+    def validate(record)
+      metadata = record.class.class_variable_get(:@@metadata)
+      #ap record
+
+      # SKip validations for specific attributes
+      #skip_validation = record.instance_variable_get(:@skip_validation)
+
+      #if !skip_validation
+      #  record.errors[:name] << 'test'
+      #end
+    end
+  end
+
+
+
 
   # This class provides an interface to access all extras for every attribute.
   #
@@ -205,15 +223,12 @@ module AttributeDescriptors
     # (API) Load metadata
     #
     def attr_descriptors(metadata, params={})
+      include ActiveModel::Validations
 
       metadata = apply_metadata_filtering(metadata, params)
 
       # Attach the metadata to the class (not the module)
       class_variable_set(:@@metadata, metadata)
-
-      # Include Rails models
-      require 'active_model'
-      include ActiveModel::Validations
 
       generate_attr_accessors
       generate_attr_wrappers
