@@ -1,4 +1,5 @@
 require 'active_model'
+require 'awesome_print'
 
 #
 # This module let's you describe data in a YAML file to generate attribute
@@ -114,7 +115,6 @@ module AttributeDescriptors
   class GenericValidator < ActiveModel::Validator
     def validate(record)
       metadata = record.class.class_variable_get(:@@metadata)
-      #ap record
 
       # SKip validations for specific attributes
       #skip_validation = record.instance_variable_get(:@skip_validation)
@@ -122,6 +122,61 @@ module AttributeDescriptors
       #if !skip_validation
       #  record.errors[:name] << 'test'
       #end
+
+      #@validations only:
+
+      metadata.each do |attr_name, meta|
+        value = record.send(attr_name)
+
+
+        # Required
+        if meta['require'] && (!value || value.size < 1)
+          record.errors.add(attr_name, 'is required')
+        end
+
+        if !value.nil? && value.size > 0
+
+          # Regex validation
+          if ! (meta['validate'] =~ value.to_s)
+            record.errors.add(attr_name, 'is not valid')
+          end
+
+          # Length for collection
+          if meta['valid_num_values']
+            case meta['valid_num_values']
+            # NOT SUPPORTED YET
+            # when /\A\d*\-\d*\z/ # ie. 2-5
+            #   min, max = range.split('-')
+            #   length[:minimum] = min
+            #   length[:maximum] = max
+            # NOT SUPPORTED YET
+            # when /\A\d*\+\z/ # ie. 5+
+            #   length[:minimum] = range.to_i
+            when /\A\d*\z/ # ie. 5
+              #length[:minimum] = range.to_i
+              #length[:maximum] = range.to_i
+
+              # TODO (*): Make inclusion work for checking arrays. Rails only allows
+              #       checking for membership of a single element.
+              # Workaround for TODO *
+              if !meta['valid_values'].include? value
+                record.errors.add(attr_name, 'is not a valid value')
+              end
+            else
+              print("ERROR: Can't recognize given range '#{range}'")
+            end
+          end
+
+          # Limits of value
+          if meta['min_length'] && meta['min_length'] > 0
+            record.errors.add(attr_name, 'is too small') if value.size < meta['min_length']
+          end
+          if meta['max_length'] && meta['max_length'] > 0
+            record.errors.add(attr_name, 'is too big') if value.size > meta['max_length']
+          end
+
+        end
+      end
     end
   end
 
@@ -250,50 +305,7 @@ module AttributeDescriptors
     # to the eigenclass of the instance. Therefore we need other workarounds
     # if we wish to set different validations on an instance basis.
     def generate_validations
-
-      metadata.each do |attr_name, meta|
-        length = {}
-        validation_params = {}
-
-        # Length for single item
-        length[:minimum] = meta['min_length'] if meta['min_length'] && \
-                                                 meta['min_length'] > 0
-        length[:maximum] = meta['max_length'] if meta['max_length'] && \
-                                                 meta['max_length'] != INFINITY
-
-        # Length for collection
-        if meta['valid_num_values']
-          range = meta['valid_num_values']
-          case range
-          # NOT SUPPORTED YET
-          # when /\A\d*\-\d*\z/ # ie. 2-5
-          #   min, max = range.split('-')
-          #   length[:minimum] = min
-          #   length[:maximum] = max
-          # NOT SUPPORTED YET
-          # when /\A\d*\+\z/ # ie. 5+
-          #   length[:minimum] = range.to_i
-          when /\A\d*\z/ # ie. 5
-            #length[:minimum] = range.to_i
-            #length[:maximum] = range.to_i
-
-            # Workaround for TODO *
-            validation_params[:inclusion] = meta['valid_values'] if meta['valid_values']
-          else
-            print("ERROR: Can't recognize given range '#{range}'")
-          end
-        end
-
-        validation_params[:presence]    = true if meta['require']
-        validation_params[:allow_blank] = !meta['require']
-        validation_params[:format]      = meta['validate']
-        validation_params[:length]      = length if !length.empty?
-        # TODO (*): Make inclusion work for checking arrays. Rails only allows
-        #       checking for membership of a single element.
-        # Workaround line : ~235
-
-        validates attr_name, validation_params
-      end
+      validates_with GenericValidator
     end
 
 
