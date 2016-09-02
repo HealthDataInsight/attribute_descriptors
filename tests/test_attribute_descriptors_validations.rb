@@ -79,6 +79,30 @@ gmail email:
   end
 
 
+  # --------------------------- Simple validations -----------------------------
+
+  test "required attributes cant be empty" do
+    class MyModel2
+      extend AttributeDescriptors::ClassAttributes
+      attr_descriptors({
+          attr1: { 'require' => true }
+      })
+      generate_validations
+    end
+    m = MyModel2.new
+    assert ! m.valid?
+    m.attr1 = nil
+    assert ! m.valid?
+    m.attr1 = ''
+    assert ! m.valid?
+    m.attr1 = []
+    assert ! m.valid?
+    m.attr1 = {}
+    assert ! m.valid?
+    m.attr1 = 'yada yada'
+    assert m.valid?
+  end
+
 
   # -------------------------- Advanced validations ----------------------------
 

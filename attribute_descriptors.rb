@@ -154,14 +154,14 @@ module AttributeDescriptors
 
 
         # Required
-        if meta['require'] && (!value || value.size < 1)
+        if meta['require'] && (value.nil? || value.size < 1)
           record.errors.add(attr_name, 'is required')
         end
 
         if !value.nil? && value.size > 0
 
           # Regex validation
-          if ! (meta['validate'] =~ value.to_s)
+          if meta['validate'] && ! (meta['validate'] =~ value.to_s)
             record.errors.add(attr_name, 'is not valid')
           end
 
