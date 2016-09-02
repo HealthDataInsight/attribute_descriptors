@@ -184,8 +184,6 @@ module AttributeDescriptors
   # directly or use the extra functionality provided like form views and
   # validations.
   #
-  # NOTICE: 'self' refers to the class extending this module.
-  #
   module ClassAttributes
 
     #
@@ -208,24 +206,7 @@ module AttributeDescriptors
     #
     def attr_descriptors(metadata, params={})
 
-      # Filter out or in attributes
-      if params.include? :except
-        params[:except].each do |attr_name|
-          metadata.delete(attr_name) || fail("'#{attr_name}' is not a valid attribute.")
-        end
-      end
-
-      if params.include? :only
-        metadata_new = {}
-        params[:only].each do |attr_name|
-          if metadata.include?(attr_name)
-            metadata_new[attr_name] = metadata[attr_name]
-          else
-            fail("'#{attr_name}' is not a valid attribute.")
-          end
-        end
-        metadata = metadata_new
-      end
+      metadata = apply_metadata_filtering(metadata, params)
 
       # Attach the metadata to the class (not the module)
       class_variable_set(:@@metadata, metadata)
@@ -234,9 +215,10 @@ module AttributeDescriptors
       require 'active_model'
       include ActiveModel::Validations
 
-      generate_attr_accessors(metadata)
-      generate_validations(metadata)
-      generate_attr_wrappers(metadata)
+      generate_attr_accessors
+      generate_attr_wrappers
+      # We don't generate validations automatically here in order to let the user
+      # have more control over them.
     end
 
     # Gives back the attributes of the model
@@ -249,7 +231,11 @@ module AttributeDescriptors
       metadata.select { |_k, meta| meta['require'] }.keys
     end
 
-    def generate_validations(metadata)
+    # Due to Rails behaviour prior to 4.2, validations don't work if added
+    # to the eigenclass of the instance. Therefore we need other workarounds
+    # if we wish to set different validations on an instance basis.
+    def generate_validations
+
       metadata.each do |attr_name, meta|
         length = {}
         validation_params = {}
@@ -298,7 +284,7 @@ module AttributeDescriptors
 
     # NOTICE: This is for the instances in contrast to the attr wrappers
     #         which are at the class level.
-    def generate_attr_accessors(metadata)
+    def generate_attr_accessors
       metadata.keys.each do |attr_name|
         attr_accessor attr_name
       end
@@ -308,15 +294,42 @@ module AttributeDescriptors
     # in order to allow further functionality like view helpers, etc.
     #
     # For example you can have User.name points to <Attribute: @@metadata={..}>
-    def generate_attr_wrappers(metadata)
-        class << self
-          metadata = class_variable_get(:@@metadata)
-          metadata.each do |attr_name, meta|
-            define_method(attr_name) do
-              Attribute.new(meta)
-            end
+    def generate_attr_wrappers
+      class << self
+        metadata = class_variable_get(:@@metadata)
+        metadata.each do |attr_name, meta|
+          define_method(attr_name) do
+            Attribute.new(meta)
           end
         end
+      end
+    end
+
+    # Filter metadata depending on parameters
+    def apply_metadata_filtering(metadata, params)
+      metadata = metadata.dup
+
+      # Filter out attributes
+      if params.include? :except
+        params[:except].each do |attr_name|
+          metadata.delete(attr_name) || fail("'#{attr_name}' is not a valid attribute.")
+        end
+      end
+
+      # Select specific attributes
+      if params.include? :only
+        metadata_new = {}
+        params[:only].each do |attr_name|
+          if metadata.include?(attr_name)
+            metadata_new[attr_name] = metadata[attr_name]
+          else
+            fail("'#{attr_name}' is not a valid attribute.")
+          end
+        end
+        metadata = metadata_new
+      end
+
+      metadata
     end
 
 
