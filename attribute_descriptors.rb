@@ -2,8 +2,11 @@ require 'active_model'
 require 'awesome_print'
 
 #
-# This module let's you describe data in a YAML file to generate attribute
-# view and validation helpers accessible at the class level.
+# This module let's you describe attributes for a class in a YAML. The gem
+# attaches the attributes' metadata to the class and generates view helpers
+# for creating forms.
+#
+# Validations can also be created by using the generate_validations.
 #
 # ie. In a form you can use `User.username.as_input_field`
 # ie. In a Rails controller you can use `@user.valid?`
@@ -112,6 +115,9 @@ module AttributeDescriptors
   end
 
   # Filter metadata depending on parameters
+  #
+  # This is beneficial if you want to use a subset of the metadata for a given
+  # class.
   def self.apply_metadata_filtering(metadata, params)
     metadata = metadata.dup
 
@@ -143,7 +149,10 @@ module AttributeDescriptors
     def validate(record)
       metadata = record.class.class_variable_get(:@@metadata)
 
-      # SKip validations for specific attributes
+      # Due to Rails behaviour prior to 4.2, validations don't work if added
+      # to the eigenclass of the instance. Therefore we let the user alter the
+      # behaviour of the validations on an instance-basis by checking a specific
+      # variable.
       validations_params = record.instance_variable_get(:@validations)
       if validations_params
         metadata = AttributeDescriptors.apply_metadata_filtering(metadata, validations_params)
@@ -211,7 +220,6 @@ module AttributeDescriptors
   #
   # For example in User.firstname.as_input_field the User.firstname is an
   # instance of this class.
-  #
   class Attribute
 
     # Allow access to metadata with dot-notation
@@ -234,9 +242,8 @@ module AttributeDescriptors
     #   * programmatic_name
     #   * placeholder
     #   * description
-    #   * valid_pattern
+    #   * validate
     #   * valid_values
-    #
     def as_input_field(prefill=nil)
       attr_name   = @attr_meta['programmatic_name']
       placeholder = @attr_meta['placeholder']
@@ -325,26 +332,24 @@ module AttributeDescriptors
       metadata.select { |_k, meta| meta['require'] }.keys
     end
 
-    # Due to Rails behaviour prior to 4.2, validations don't work if added
-    # to the eigenclass of the instance. Therefore we need other workarounds
-    # if we wish to set different validations on an instance basis.
+    # Redirects to the validator
     def generate_validations
       validates_with GenericValidator
     end
 
 
-    # NOTICE: This is for the instances in contrast to the attr wrappers
-    #         which are at the class level.
+    # Generates attribute accessors for the class
     def generate_attr_accessors
       metadata.keys.each do |attr_name|
         attr_accessor attr_name
       end
     end
 
-    # Attach an Attribute object to the class for every attribute
+    # Attaches an Attribute object to the class for every attribute
     # in order to allow further functionality like view helpers, etc.
     #
-    # For example you can have User.name points to <Attribute: @@metadata={..}>
+    # Example:
+    #   User.name # points to <Attribute: @@metadata={..}>
     def generate_attr_wrappers
       class << self
         metadata = class_variable_get(:@@metadata)
