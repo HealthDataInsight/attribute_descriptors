@@ -169,8 +169,10 @@ module AttributeDescriptors
 
 
         # Required
-        if meta['require'] && (value.nil? || value.size < 1)
+        if meta['require'] && (value.nil? || value.size < 1 ||
+                               value == meta['placeholder'])
           record.errors.add(attr_name, 'is required')
+          next
         end
 
         if !value.nil? && value.size > 0
