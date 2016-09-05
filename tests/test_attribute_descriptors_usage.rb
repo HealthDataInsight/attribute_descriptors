@@ -94,7 +94,7 @@ class TestAttributeDescriptorsUsage < Test::Unit::TestCase
 
       def initialize(skip_validations=false)
         if skip_validations
-          @validations = {except: ['attr1']}
+          @attr_validations = {except: ['attr1']}
         end
       end
 

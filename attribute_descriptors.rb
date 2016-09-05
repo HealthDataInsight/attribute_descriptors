@@ -153,7 +153,7 @@ module AttributeDescriptors
       # to the eigenclass of the instance. Therefore we let the user alter the
       # behaviour of the validations on an instance-basis by checking a specific
       # variable.
-      validations_params = record.instance_variable_get(:@validations)
+      validations_params = record.instance_variable_get(:@attr_validations)
       if validations_params
         metadata = AttributeDescriptors.apply_metadata_filtering(metadata, validations_params)
       end
