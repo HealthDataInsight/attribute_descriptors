@@ -23,7 +23,6 @@ module AttributeDescriptors
     base.extend ClassMethods
   end
 
-
   def self.load_file(filepath, defaults = nil)
     f = open(filepath, 'r')
     file_content = f.read
@@ -287,10 +286,7 @@ module AttributeDescriptors
 
   module InstanceMethods
 
-    # (API) Further specifications for the validations.
-    #
-    # This method let's you filter out (:except) attributes for validations
-    # or specify specific attributes (:only).
+    # Filter out (:except) attributes for validations or specify specific attributes (:only).
     def attr_validations(params = {})
       @attr_validations = params
     end
@@ -299,22 +295,18 @@ module AttributeDescriptors
 
   module ClassMethods
 
-    # (API) Access the attribute descriptors of the class
+    # Access the attribute descriptors of the class
     def metadata
       class_variable_get(:@@metadata)
     end
 
-    #
-    # (API) Load metadata from file
-    #
+    # Load metadata from file
     def attr_descriptors_from(filepath, params = {})
       metadata = AttributeDescriptors.load_file(filepath)
       attr_descriptors(metadata, params)
     end
 
-    #
-    # (API) Load metadata
-    #
+    # Load metadata
     def attr_descriptors(metadata, params = {})
       include ActiveModel::Validations
 
@@ -325,8 +317,11 @@ module AttributeDescriptors
 
       generate_attr_accessors
       generate_attr_wrappers
-      # We don't generate validations automatically here in order to let the
-      # user have more control over them.
+    end
+
+    # Redirects to the validator
+    def generate_validations
+      validates_with GenericValidator
     end
 
     # Gives back the attributes of the model
@@ -339,10 +334,7 @@ module AttributeDescriptors
       metadata.select { |_k, meta| meta['require'] }.keys
     end
 
-    # Redirects to the validator
-    def generate_validations
-      validates_with GenericValidator
-    end
+    private
 
     # Generates attribute accessors for the class
     def generate_attr_accessors
