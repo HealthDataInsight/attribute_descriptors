@@ -171,7 +171,7 @@ module AttributeDescriptors
 
           # Regex validation
           if meta['validate'] && ! (meta['validate'] =~ value.to_s)
-            record.errors.add(attr_name, 'is not valid')
+            record.errors.add(attr_name, 'is invalid')
           end
 
           # Length for collection
@@ -193,7 +193,7 @@ module AttributeDescriptors
               #       checking for membership of a single element.
               # Workaround for TODO *
               if !meta['valid_values'].include? value
-                record.errors.add(attr_name, 'is not a valid value')
+                record.errors.add(attr_name, 'is invalid')
               end
             else
               print("ERROR: Can't recognize given range '#{range}'")
