@@ -285,21 +285,21 @@ module AttributeDescriptors
 
   end
 
+  module InstanceMethods
 
+    # (API) Further specifications for the validations.
+    #
+    # This method let's you filter out (:except) attributes for validations
+    # or specify specific attributes (:only).
+    def attr_validations(params = {})
+      @attr_validations = params
+    end
 
-  #
-  # (API)
-  #
-  # This class can be extended from a class in order to attach metadata
-  # for the attributes for that class. You can afterwards access the metadata
-  # directly or use the extra functionality provided like form views and
-  # validations.
-  #
+  end
+
   module ClassMethods
 
-    #
     # (API) Access the attribute descriptors of the class
-    #
     def metadata
       class_variable_get(:@@metadata)
     end
