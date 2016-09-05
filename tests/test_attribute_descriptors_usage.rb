@@ -18,11 +18,11 @@ class TestAttributeDescriptorsUsage < Test::Unit::TestCase
     },
   }
   class MyModel1
-    extend AttributeDescriptors::ClassAttributes
+    include AttributeDescriptors
     attr_descriptors META1
   end
   class MyModel2
-    extend AttributeDescriptors::ClassAttributes
+    include AttributeDescriptors
     attr_descriptors META2
   end
 
@@ -62,7 +62,7 @@ class TestAttributeDescriptorsUsage < Test::Unit::TestCase
 
   test "you should be able to exclude attributes from the metadata" do
     class MyModel3
-      extend AttributeDescriptors::ClassAttributes
+      include AttributeDescriptors
       attr_descriptors META2, except: %w(attr1)
     end
     assert !MyModel3.metadata.include?('attr1')
@@ -71,7 +71,7 @@ class TestAttributeDescriptorsUsage < Test::Unit::TestCase
 
   test "you should be able to cherry-pick attributes from the metadata" do
     class MyModel3
-      extend AttributeDescriptors::ClassAttributes
+      include AttributeDescriptors
       attr_descriptors META2, only: %w(attr2)
     end
     assert !MyModel3.metadata.include?('attr1')
@@ -86,7 +86,7 @@ class TestAttributeDescriptorsUsage < Test::Unit::TestCase
 
   test "as part of the API you should be able to skip validations for specific instances" do
     class MyModel3
-      extend AttributeDescriptors::ClassAttributes
+      include AttributeDescriptors
       attr_descriptors({
         "attr1" => { "require" => true }
       })

@@ -4,7 +4,7 @@ require_relative 'bootstrap'
 class TestAttributeDescriptorsAttribute < Test::Unit::TestCase
 
   class MyModel
-    extend AttributeDescriptors::ClassAttributes
+    include AttributeDescriptors
     attr_descriptors({
       'digits' => {
         'valid_pattern'     => /\A\d*\z/,

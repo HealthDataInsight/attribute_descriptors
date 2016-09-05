@@ -29,7 +29,7 @@ gmail email:
 
 
   class MyModel
-    extend AttributeDescriptors::ClassAttributes
+    include AttributeDescriptors
     attr_descriptors METADATA
     generate_attr_accessors
     generate_validations
@@ -83,7 +83,7 @@ gmail email:
 
   test "required attributes cant be empty" do
     class MyModel2
-      extend AttributeDescriptors::ClassAttributes
+      include AttributeDescriptors
       attr_descriptors({
           attr1: { 'require' => true }
       })
@@ -120,7 +120,7 @@ Favorite animals:
 ''')
 
   class MyModel2
-    extend AttributeDescriptors::ClassAttributes
+    include AttributeDescriptors
     attr_descriptors METADATA
     generate_attr_accessors
     generate_validations

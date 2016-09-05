@@ -17,6 +17,13 @@ module AttributeDescriptors
 
   INFINITY = Float::INFINITY
 
+  # Set class-level and instance-level API methods
+  def self.included base
+    base.send :include, InstanceMethods
+    base.extend ClassMethods
+  end
+
+
   def self.load_file(filepath, defaults = nil)
     f = open(filepath, 'r')
     file_content = f.read
@@ -288,7 +295,7 @@ module AttributeDescriptors
   # directly or use the extra functionality provided like form views and
   # validations.
   #
-  module ClassAttributes
+  module ClassMethods
 
     #
     # (API) Access the attribute descriptors of the class
