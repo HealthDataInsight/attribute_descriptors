@@ -233,7 +233,7 @@ module AttributeDescriptors
     end
 
     def initialize(attr_meta)
-      @attr_meta   = attr_meta
+      @attr_meta = attr_meta
     end
 
     # Generates a form input field in HTML based on the metadata
@@ -244,36 +244,36 @@ module AttributeDescriptors
     #   * description
     #   * validate
     #   * valid_values
-    def as_input_field(prefill=nil)
-      attr_name   = @attr_meta['programmatic_name']
+    def as_input_field(prefill = nil)
+      attr_name = @attr_meta['programmatic_name']
       placeholder = @attr_meta['placeholder']
       attr_description = @attr_meta['description']
 
       html_label = "<label for='#{attr_name}'>#{attr_description}</label>"
 
       # Text field
-      if @attr_meta["valid_values"].nil?
+      if @attr_meta['valid_values'].nil?
         html_placeholder = placeholder ? "placeholder='#{placeholder}'" : ''
-        html_value       = prefill ? "value='#{prefill}'" : ''
+        html_value = prefill ? "value='#{prefill}'" : ''
         html = "<input id='#{attr_name}' name='#{attr_name}' #{html_placeholder} type='text' #{html_value} />\n"
 
       # Dropdown
       else
         if placeholder
-          instruction_option = [ placeholder ]
+          instruction_option = [placeholder]
         else
           instruction_option = []
         end
         selection_options = instruction_option + @attr_meta["valid_values"]
         html = "<select id='#{attr_name}' name='#{attr_name}'>\n"
         selection_options.each do |option_value|
-          html_selected = (option_value == prefill) ? " selected" : ''
+          html_selected = (option_value == prefill) ? ' selected' : ''
           html += "<option value='#{option_value}'#{html_selected}>#{option_value}</option>\n"
         end
-        html += "</select>"
+        html += '</select>'
 
       end
-      return "#{html_label}\n#{html}\n"
+      "#{html_label}\n#{html}\n"
     end
 
   end
@@ -300,7 +300,7 @@ module AttributeDescriptors
     #
     # (API) Load metadata from file
     #
-    def attr_descriptors_from(filepath, params={})
+    def attr_descriptors_from(filepath, params = {})
       metadata = AttributeDescriptors.load_file(filepath)
       attr_descriptors(metadata, params)
     end
@@ -308,7 +308,7 @@ module AttributeDescriptors
     #
     # (API) Load metadata
     #
-    def attr_descriptors(metadata, params={})
+    def attr_descriptors(metadata, params = {})
       include ActiveModel::Validations
 
       metadata = AttributeDescriptors.apply_metadata_filtering(metadata, params)
@@ -318,8 +318,8 @@ module AttributeDescriptors
 
       generate_attr_accessors
       generate_attr_wrappers
-      # We don't generate validations automatically here in order to let the user
-      # have more control over them.
+      # We don't generate validations automatically here in order to let the
+      # user have more control over them.
     end
 
     # Gives back the attributes of the model
@@ -336,7 +336,6 @@ module AttributeDescriptors
     def generate_validations
       validates_with GenericValidator
     end
-
 
     # Generates attribute accessors for the class
     def generate_attr_accessors
