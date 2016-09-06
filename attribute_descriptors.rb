@@ -321,11 +321,6 @@ module AttributeDescriptors
       generate_attr_wrappers
     end
 
-    # Redirects to the validator
-    def generate_validations
-      validates_with GenericValidator
-    end
-
     # Gives back the attributes of the model
     def attributes
       metadata.keys
@@ -334,6 +329,11 @@ module AttributeDescriptors
     # Gives back the required attributes of the model
     def required_attributes
       metadata.select { |_k, meta| meta['require'] }.keys
+    end
+
+    # Redirects to the validator
+    def generate_validations
+      validates_with GenericValidator
     end
 
     private
