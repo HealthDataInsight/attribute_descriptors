@@ -88,7 +88,8 @@ Any model based on metadta, also inherits some extra methods as seen below.
 
 *`attr_validations`* - let's you alter the behaviour of the validations. Takes `:only`, `:except`
 
-**Metadata**
+Describing your data
+--------------------
 
 The below options can be use to describe the data. Based on the options, the data
 will be presented in a specific way when used for input (form), output and different
