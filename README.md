@@ -88,6 +88,7 @@ Any model based on metadta, also inherits some extra methods as seen below.
 
 *`attr_validations`* - let's you alter the behaviour of the validations. Takes `:only`, `:except`
 
+
 Describing your data
 --------------------
 
@@ -106,4 +107,4 @@ You can add your own metadata entries as long as they don't collide with the one
 *`valid_values`* - list of permitted values for this data. If used in a form, this will
             generate a dropdown or selection input field.
 
-*`valid_num_values`* - specifies how many values can be chosen. ie. 3 sets only 3 values, 3+ sets a minimum of 3, 2-5 sets a range between 2 and 5.
+*`valid_num_values`* - specifies how many values can be chosen. ie. 3 specifies excactly 3 values to be chosen, 3+ sets a minimum of 3, 2-5 sets a range between 2 and 5.
