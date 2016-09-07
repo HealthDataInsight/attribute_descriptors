@@ -151,7 +151,37 @@ module AttributeDescriptors
   end
 
 
-  class GenericValidator < ActiveModel::Validator
+
+
+  class AttributesValidator < ActiveModel::Validator
+
+    def validate_collection(collection, meta, record)
+      nil
+    end
+
+    def validate_value(value, meta, record)
+      attr_name = meta['programmatic_name']
+
+      # Limits of value
+      if meta['min_length'] && meta['min_length'] > 0
+        record.errors.add(attr_name, 'is too small') if value.size < meta['min_length']
+      elsif meta['max_length'] && meta['max_length'] > 0
+        record.errors.add(attr_name, 'is too big') if value.size > meta['max_length']
+
+      # Inside permitted values
+      elsif meta['valid_values'] && !meta['valid_values'].include?(value)
+        record.errors.add(attr_name, 'is invalid')
+
+      # Regex validation
+      elsif meta['validate'] && ! (meta['validate'] =~ value.to_s)
+        record.errors.add(attr_name, 'is invalid')
+      end
+
+    end
+
+    # There are two main cases:
+    #  * collection (list)
+    #  * single-value (numeric)
     def validate(record)
       metadata = record.class.class_variable_get(:@@metadata)
 
@@ -167,7 +197,6 @@ module AttributeDescriptors
       metadata.each do |attr_name, meta|
         value = record.send(attr_name)
 
-
         # Required
         if meta['require'] && (value.nil? || value.size < 1 ||
                                value == meta['placeholder'])
@@ -175,46 +204,36 @@ module AttributeDescriptors
           next
         end
 
-        if !value.nil? && value.size > 0
 
-          # Regex validation
-          if meta['validate'] && ! (meta['validate'] =~ value.to_s)
-            record.errors.add(attr_name, 'is invalid')
+        # Validate a collection
+        if meta['valid_num_values'] && value.is_a?(Array)
+
+          case meta['valid_num_values']
+          # NOT SUPPORTED YET
+          # when /\A\d*\-\d*\z/ # ie. 2-5
+          #   min, max = range.split('-')
+          #   length[:minimum] = min
+          #   length[:maximum] = max
+          # NOT SUPPORTED YET
+          # when /\A\d*\+\z/ # ie. 5+
+          #   length[:minimum] = range.to_i
+          when /\A\d*\z/ # ie. 5
+            #length[:minimum] = range.to_i
+            #length[:maximum] = range.to_i
+
+            # TODO (*): Make inclusion work for checking arrays. Rails only allows
+            #       checking for membership of a single element.
+            # Workaround for TODO *
+
+          else
+            print("ERROR: Can't recognize given range '#{range}'")
           end
 
-          # Length for collection
-          if meta['valid_num_values']
-            case meta['valid_num_values']
-            # NOT SUPPORTED YET
-            # when /\A\d*\-\d*\z/ # ie. 2-5
-            #   min, max = range.split('-')
-            #   length[:minimum] = min
-            #   length[:maximum] = max
-            # NOT SUPPORTED YET
-            # when /\A\d*\+\z/ # ie. 5+
-            #   length[:minimum] = range.to_i
-            when /\A\d*\z/ # ie. 5
-              #length[:minimum] = range.to_i
-              #length[:maximum] = range.to_i
 
-              # TODO (*): Make inclusion work for checking arrays. Rails only allows
-              #       checking for membership of a single element.
-              # Workaround for TODO *
-              if !meta['valid_values'].include? value
-                record.errors.add(attr_name, 'is invalid')
-              end
-            else
-              print("ERROR: Can't recognize given range '#{range}'")
-            end
-          end
+        # Validate a single value
+        else
+            validate_value(value, meta, record) if !value.nil? && value.size > 0
 
-          # Limits of value
-          if meta['min_length'] && meta['min_length'] > 0
-            record.errors.add(attr_name, 'is too small') if value.size < meta['min_length']
-          end
-          if meta['max_length'] && meta['max_length'] > 0
-            record.errors.add(attr_name, 'is too big') if value.size > meta['max_length']
-          end
 
         end
       end
@@ -333,7 +352,7 @@ module AttributeDescriptors
 
     # Redirects to the validator
     def generate_validations
-      validates_with GenericValidator
+      validates_with AttributesValidator
     end
 
     private
