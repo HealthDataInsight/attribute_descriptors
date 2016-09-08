@@ -201,12 +201,9 @@ module AttributeDescriptors
         if meta['require'] && (value.nil? || value.size < 1 ||
                                value == meta['placeholder'])
           record.errors.add(attr_name, 'is required')
-          next
-        end
-
 
         # Validate a collection
-        if meta['valid_num_values'] && value.is_a?(Array)
+        elsif meta['valid_num_values'] && value.is_a?(Array)
 
           case meta['valid_num_values']
           # NOT SUPPORTED YET
@@ -229,11 +226,9 @@ module AttributeDescriptors
             print("ERROR: Can't recognize given range '#{range}'")
           end
 
-
         # Validate a single value
         else
             validate_value(value, meta, record) if !value.nil? && value.size > 0
-
 
         end
       end
