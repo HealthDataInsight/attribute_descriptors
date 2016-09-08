@@ -155,12 +155,41 @@ module AttributeDescriptors
 
   class AttributesValidator < ActiveModel::Validator
 
-    def validate_collection(collection, meta, record)
-      nil
+    def validate_collection(collection, meta, attr_name, record)
+
+      # Validate the number of values given
+      range = meta['valid_num_values']
+      case range
+      when /\A\d*\-\d*\z/ # e.g. 2-5
+        min, max = range.split('-').map{|n| n.to_i}
+        if collection.size < min
+          record.errors.add(attr_name, "too few values given")
+        elsif collection.size > max
+          record.errors.add(attr_name, "too many values given")
+        end
+      when /\A\d*\+\z/ # e.g. 5+
+        min = range.to_i
+        if collection.size < min
+          record.errors.add(attr_name, "too few values given")
+        end
+      when /\A\d*\z/ # e.g. 5
+        if collection.size < range.to_i
+          record.errors.add(attr_name, "is less than number of allowerd values #{range.to_i}")
+        elsif collection.size > range.to_i
+          record.errors.add(attr_name, "exceeds number of allowed values #{range.to_i}")
+        end
+      else
+        print("ERROR: Can't recognize given range '#{range}'")
+      end
+
+      # Validate each value separately
+      collection.each do |value|
+        validate_value(value, meta, attr_name, record)
+      end
+
     end
 
-    def validate_value(value, meta, record)
-      attr_name = meta['programmatic_name']
+    def validate_value(value, meta, attr_name, record)
 
       # Limits of value
       if meta['min_length'] && meta['min_length'] > 0
@@ -204,32 +233,11 @@ module AttributeDescriptors
 
         # Validate a collection
         elsif meta['valid_num_values'] && value.is_a?(Array)
-
-          case meta['valid_num_values']
-          # NOT SUPPORTED YET
-          # when /\A\d*\-\d*\z/ # ie. 2-5
-          #   min, max = range.split('-')
-          #   length[:minimum] = min
-          #   length[:maximum] = max
-          # NOT SUPPORTED YET
-          # when /\A\d*\+\z/ # ie. 5+
-          #   length[:minimum] = range.to_i
-          when /\A\d*\z/ # ie. 5
-            #length[:minimum] = range.to_i
-            #length[:maximum] = range.to_i
-
-            # TODO (*): Make inclusion work for checking arrays. Rails only allows
-            #       checking for membership of a single element.
-            # Workaround for TODO *
-
-          else
-            print("ERROR: Can't recognize given range '#{range}'")
-          end
+          validate_collection(value, meta, attr_name, record)
 
         # Validate a single value
         else
-            validate_value(value, meta, record) if !value.nil? && value.size > 0
-
+          validate_value(value, meta, attr_name, record) if !value.nil? && value.size > 0
         end
       end
     end

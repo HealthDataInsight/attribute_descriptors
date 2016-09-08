@@ -122,7 +122,6 @@ Favorite animals:
   class MyModel2
     include AttributeDescriptors
     attr_descriptors METADATA
-    generate_attr_accessors
     generate_validations
 
     def initialize(attrs = {})
@@ -132,29 +131,97 @@ Favorite animals:
     end
   end
 
-  # test "limits valid values based on metadata" do
-  #   m = MyModel.new({'fav_animals' => 'e'})
-  #   assert m.valid?
-  #   m = MyModel.new({'fav_animals' => 'g'})
-  #   assert !m.valid?
-  # end
-  #
-  # test "invalidate an attribute if not exact numbers of values are given" do
-  #   m = MyModel.new({'fav_animals' => ['a']})
-  #   assert !m.valid?
-  #   m = MyModel.new({'fav_animals' => ['a', 'e']})
-  #   assert m.valid?
-  #   m = MyModel.new({'fav_animals' => ['a', 'e', 'i']})
-  #   assert !m.valid?
-  # end
-
-  # CURRENTLY ONLY WORKING WITH NON-ARRAY
   test "invalidate an attribute if it's not inside the permitted window of values" do
-    m = MyModel2.new({'fav_animals' => 'cat'})
+    m = MyModel2.new({'fav_animals' => 'diplopodus'})
     assert !m.valid?
     m = MyModel2.new({'fav_animals' => 'hippo'})
     assert m.valid?
   end
 
+  test "in case of a single item allowed it shouldnt make a difference if we "\
+       "have a list with a single item" do
+    m = MyModel2.new({'fav_animals' => 'hippo'})
+    assert m.valid?
+    m = MyModel2.new({'fav_animals' => ['hippo']})
+    assert m.valid?
+  end
+
+  test "invalidate an attribute if not exact numbers of values are given" do
+    m = MyModel2.new({'fav_animals' => ['hippo']})
+    assert m.valid?
+    m = MyModel2.new({'fav_animals' => ['hippo', 'snake']})
+    assert !m.valid?
+  end
+
+  class MyModel3
+    include AttributeDescriptors
+    attr_descriptors({
+      'attr1' => {
+        'valid_num_values'  => '1'
+      },
+      'attr2' => {
+        'valid_num_values' => '1+'
+      },
+      'attr3' => {
+        'valid_num_values' => '0-3'
+      },
+      'attr4' => {
+        'valid_num_values' => '2-4'
+      }
+    })
+    generate_validations
+
+    def initialize(attrs = {})
+      attrs.each do |attr_name, value|
+        send("#{attr_name}=", value) if self.class.metadata.include? attr_name
+      end
+    end
+  end
+
+  test "you should be able to specify an exact number of values to be given" do
+    m = MyModel3.new({ 'attr1' => [1] })
+    assert m.valid?
+    m = MyModel3.new({ 'attr1' => [1, 2] })
+    assert !m.valid?
+    m = MyModel3.new({ 'attr1' => [] })
+    assert !m.valid?
+  end
+
+  test "you should be able to specify a minimum of values to be given" do
+    m = MyModel3.new({ 'attr2' => [] })
+    assert !m.valid?
+    m = MyModel3.new({ 'attr2' => [1] })
+    assert m.valid?
+    m = MyModel3.new({ 'attr2' => [1, 2] })
+    assert m.valid?
+    m = MyModel3.new({ 'attr2' => [1, 2, 3, 4, 5] })
+    assert m.valid?
+  end
+
+  test "you should be able to specify a maximum of values to be given" do
+    m = MyModel3.new({ 'attr3' => [] })
+    assert m.valid?
+    m = MyModel3.new({ 'attr3' => [1] })
+    assert m.valid?
+    m = MyModel3.new({ 'attr3' => [1, 2] })
+    assert m.valid?
+    m = MyModel3.new({ 'attr3' => [1, 2, 3, 4, 5] })
+    assert !m.valid?
+  end
+
+  test "you should be able to specify a window of number of values" do
+    m = MyModel3.new({ 'attr4' => [] })
+    assert !m.valid?
+    m = MyModel3.new({ 'attr4' => [1] })
+    assert !m.valid?
+    m = MyModel3.new({ 'attr4' => [1, 2] })
+    assert m.valid?
+    m = MyModel3.new({ 'attr4' => [1, 2, 3] })
+    assert m.valid?
+    m = MyModel3.new({ 'attr4' => [1, 2, 3, 4] })
+    assert m.valid?
+    m = MyModel3.new({ 'attr4' => [1, 2, 3, 4, 5] })
+    assert !m.valid?
+  end
 
 end
