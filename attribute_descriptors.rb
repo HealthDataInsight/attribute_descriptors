@@ -1,5 +1,6 @@
 require 'active_model'
 require 'awesome_print'
+require 'cgi'
 
 #
 # This module let's you describe attributes for a class in a YAML. The gem
@@ -284,7 +285,7 @@ module AttributeDescriptors
       # Text field
       if @attr_meta['valid_values'].nil?
         html_placeholder = placeholder ? "placeholder='#{placeholder}'" : ''
-        html_value = prefill ? "value='#{prefill}'" : ''
+        html_value = prefill ? "value='#{CGI::escapeHTML(prefill)}'" : ''
         html = "<input id='#{attr_name}' name='#{attr_name}' #{html_placeholder} type='text' #{html_value} />\n"
 
       # Dropdown

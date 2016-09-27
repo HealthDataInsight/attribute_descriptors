@@ -61,4 +61,8 @@ class TestAttributeDescriptorsAttribute < Test::Unit::TestCase
     assert options_selected == 1
   end
 
+  test "be careful of cross-scripting (injection of code to frontend)" do
+    injection_segment = "''>Injected code<input class='"
+    assert !MyModel.digits.as_input_field(injection_segment).include?(injection_segment)
+  end
 end
