@@ -1,8 +1,6 @@
 require 'active_model'
-require 'awesome_print'
 require 'cgi'
 
-#
 # This module let's you describe attributes for a class in a YAML. The gem
 # attaches the attributes' metadata to the class and generates view helpers
 # for creating forms.
@@ -12,11 +10,8 @@ require 'cgi'
 # ie. In a form you can use `User.username.as_input_field`
 # ie. In a Rails controller you can use `@user.valid?`
 #
-# For more information you can contact the author at manossef@gmail.com
-#
+# For more information you can contact the author at johan.seferidisf@phe.gov.uk
 module AttributeDescriptors
-
-  INFINITY = Float::INFINITY
 
   # Set class-level and instance-level API methods
   def self.included base
@@ -24,19 +19,19 @@ module AttributeDescriptors
     base.extend ClassMethods
   end
 
-  def self.load_file(filepath, defaults = nil)
+  def self.load_file(filepath)
     f = open(filepath, 'r')
     file_content = f.read
     f.close
-    load_yaml(file_content, defaults)
+    load_yaml(file_content)
   end
 
-  # Reads raw YAML metadata specifying data name, length, max values, etc.
-  def self.load_yaml(yaml, defaults = nil)
+  # Reads metadata from a raw YAML string
+  def self.load_yaml(yaml)
     metadata = YAML.load(yaml)
 
     metadata.each do |attr_name, meta|
-      params = defaults || {
+      params = {
         'require'        => true,
         'validate'       => /.*/,
         'max_length'     => nil,
