@@ -48,8 +48,7 @@ module AttributeDescriptors
         end
       end
 
-      # Generate a programmatic_name based on the attr_name if none explicitly
-      # given
+      # Generate a programmatic_name if none explicitly given
       #
       # IMPORTANT: Automatically generated programmatic names might be too long.
       #            You are advised to explicitly add the programmatic_name for
