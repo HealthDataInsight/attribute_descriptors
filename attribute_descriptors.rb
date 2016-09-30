@@ -13,6 +13,18 @@ require 'cgi'
 # For more information you can contact the author at johan.seferidisf@phe.gov.uk
 module AttributeDescriptors
 
+  META_SPECIFIERS = [
+    'require',
+    'validate',
+    'max_length',
+    'min_length',
+    'valid_values',
+    'valid_num_values',
+    'programmatic_name',
+    'placeholder',
+    'description' # This is the header for every attribute in the YAML
+  ]
+
   # Set class-level and instance-level API methods
   def self.included base
     base.send :include, InstanceMethods
@@ -58,6 +70,17 @@ module AttributeDescriptors
         singly_underscored = underscored.split('_').select { |v| !v.empty? }\
                                         .join('_')
         metadata[attr_name]['programmatic_name'] = singly_underscored
+      end
+
+      # Check for possible misspells
+      metadata[attr_name].each do |name, value|
+        # TODO: Add Levenshtein distance or similar algorithm
+        META_SPECIFIERS.each do |whitelisted|
+          if (name.include?(whitelisted) || whitelisted.include?(name)) &&\
+              whitelisted != name
+            print("WARNING: AttributeDescriptors: did you mean '#{whitelisted}' in #{attr_name}?")
+          end
+        end
       end
 
       # Finally update/evaluate values to the ones given by configuration file

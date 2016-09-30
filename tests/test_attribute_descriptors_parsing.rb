@@ -64,7 +64,6 @@ Fieldname2:
   require: true
 Fieldname3:
   programmatic_name: name3
-  validates: \w{5}
   require: false'''
 
   metadata_example_file = Tempfile.new('')
