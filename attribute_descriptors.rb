@@ -29,19 +29,7 @@ module AttributeDescriptors
   # Reads metadata from a raw YAML string
   def self.load_yaml(yaml)
     metadata = YAML.load(yaml)
-
     metadata.each do |attr_name, meta|
-      params = {
-        'require'        => true,
-        'validate'       => /.*/,
-        'max_length'     => nil,
-        'min_length'     => 0,
-        'min_value'      => 0,
-        'max_value'      => nil,
-        'values'         => nil,
-        'max_num_values' => nil,
-        'min_num_values' => 0
-      }
 
       # Expand compact syntax (ie. a=10 b=20)
       #
@@ -58,11 +46,6 @@ module AttributeDescriptors
           k, v = assignment.split('=')
           metadata[attr_name][k] = v
         end
-      end
-
-      # Add any missing paramaters from defaults
-      params.each do |k, _v|
-        metadata[attr_name][k] = params[k] unless metadata[attr_name].include? k
       end
 
       # Generate a programmatic_name based on the attr_name if none explicitly
