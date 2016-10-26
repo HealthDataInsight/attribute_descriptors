@@ -1,10 +1,11 @@
 What's this?
 ------------
 
-The gem let's you describe data in a YAML file and generate forms and validations easily from that.
+This module let's you add syntactic sugar and helper methods on an
+attribute basis. For example to create an input field in a form you can simply
+use `User.forename.as_input_field`.
 
-
-Assuming you have this metadata:
+The way this works is by having a YAML that describes your data like below.
 
     First name:
       programmatic_name: firstname
@@ -14,16 +15,20 @@ Assuming you have this metadata:
       programmatic_name: lastname
       valid_pattern: /\D*/
 
-You can generate the needed HTML for a form with  `User.firstname.as_input_field` and validate directy with `User.new.valid?`.
+You can then access this data where it makes sense. For example `User.firstname` will
+give you the metadata for the first name. Accessing from the instance is also possible
+(e.g. `user.metadata`).
 
-The metadata for every model/class is always reachable, giving you the freedom to hack around, remove or build on top of it.
-
-
+The benefit of all this is that you can encapsulate and re-use data descriptions
+in classes. In conjunction with Rails some helper methods are also attached to
+the classes bases on the metadata for creating forms and altering validations on
+an attribute level.
 
 Usage
 -----
 
-First you need to describe your data in a YAML file. You are free to name the file whatever you want.
+First you need to describe your data in a YAML file. Below we describe properties
+of a user.
 
 config/metadata/user.yml:
 
@@ -36,7 +41,7 @@ config/metadata/user.yml:
         validate: \D*
         require: yes  
 
-Then you simply load the metadata to your model:
+Then we use the metadata in our model:
 
     include 'attribute_descriptors'
 
@@ -45,22 +50,23 @@ Then you simply load the metadata to your model:
       attr_descriptors_from 'config/metadata/user.yml'
     end
 
-You can then access the metadata or the helpers directly from the class.
+You can then access the metadata directly either from the class or an instance.
 
-    User.metadata
+    User.forename     # gives metadata for forename
+    User.new.metadata # gives the whole metadata
 
-or
-
-    User.forename
-
-In the views you can access the form builders:
+You also have access to helper methods that let you create form fields intuively.
 
     User.forename.as_input_field
 
 
-You can also generate validations.
+You can also generate Rails validations automatically.
+
+    include 'attribute_descriptors'
 
     class User
+      include AttributeDescriptors
+      attr_descriptors_from 'config/metadata/user.yml'
       generate_validations
     end
 
@@ -75,35 +81,30 @@ You can also generate validations.
 
 API
 ------------
-Any model based on metadta, also inherits some extra methods as seen below.
+Below you can find methods and properties offered for classes and/or instances.
 
-**Class level**
+**Class goodies**
 
-*`attr_descriptors_form`* - attaches the metadata at the specific file location to the class
+*`attr_descriptors_from`* - attaches the metadata at the specific file location to the class
 *`attr_descriptors`* - attaches the given metadata to the class
 *`attributes`* - shows all attributes the model can take
-*`required_attributes`* - shows all attributes that are essential
+*`required_attributes`* - shows all attributes that are marked as required
 
-**Instance level**
+**Instance goodies**
 
 *`attr_validations`* - let's you alter the behaviour of the validations. Takes `:only`, `:except`
 
 
-Describing your data
+Reserved keywords (describing your data)
 --------------------
 
-The below options can be use to describe the data. Based on the options, the data
-will be presented in a specific way when used for input (form), output and different
-validation rules will be generated.
+The keywords below are reserved for the helper methods when describing your data.
+You are free add your own metadata entries as long as they don't collide with the ones below.
 
-You can add your own metadata entries as long as they don't collide with the ones below.
+*`validate`* - regular expression being used to validate the field. The regular expression tries to match the WHOLE field. For example `\w*` is the same as `/\A\w*\z/` in pure Ruby.
 
-*`validate`* - regular expression being used to validate the field. The regular expression tries to match the WHOLE field. For example `\w*` is the same as ``/\A\w*\z/` in pure Ruby.
-
-*`programmatic_name`* - name for the data hat will be used everywhere in the code
-
+*`programmatic_name`* - this is the name that will be used throughout the code
 *`require`* - tells if this field is required when inserting new data
-
 *`valid_values`* - list of permitted values for this data. If used in a form, this will
             generate a dropdown or selection input field.
 
