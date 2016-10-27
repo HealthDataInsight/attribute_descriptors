@@ -25,7 +25,6 @@ class TestAttributeDescriptorsParsing < Test::Unit::TestCase
   test 'regular expressions once parsed, have the \A and \z placeholders enforced' do
     yaml = "field1:\n  valid_values:\n   - /\\w/"
     parsed = AttributeDescriptors.load_yaml(yaml)
-    ap parsed['field1']['valid_values'][:regexes].first
     assert parsed['field1']['valid_values'][:regexes].first == /\A\w\z/
   end
 

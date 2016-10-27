@@ -68,19 +68,6 @@ module AttributeDescriptors
       # Finally update/evaluate values to the ones given by configuration file
       metadata[attr_name].each do |name, value|
         case name
-        when 'validate'
-          if value.is_a?(String)
-            value = value[1...-1] if value.start_with?('/') && \
-                                     value.end_with?('/')
-
-            # Enforce the \A..\z regex placeholders for security reasons
-            # (http://guides.rubyonrails.org/security.html#regular-expressions)
-            value = value[1..-1]  if value.start_with?('^')
-            value = value[0...-1] if value.start_with?('$')
-            value = '\A' + value unless value.start_with?('\A')
-            value += '\z' unless value.end_with?('\z')
-          end
-          metadata[attr_name][name] = Regexp.new(value)
         when 'valid_values'
           parsed = {
             regexes: [],
