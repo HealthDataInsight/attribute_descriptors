@@ -3,26 +3,29 @@ What's this?
 
 This module let's you add syntactic sugar and helper methods on an
 attribute basis. For example to create an input field in a form you can simply
-use `User.forename.as_input_field`.
+use `User.firstname.as_input_field` to generate the appropriate HTML.
 
 The way this works is by having a YAML that describes your data like below.
 
     First name:
       programmatic_name: firstname
       description: The forename of a person.
-      valid_pattern: /\D*/
+      valid_values:
+        - /\D*/
     Last name:
       programmatic_name: lastname
-      valid_pattern: /\D*/
+      valid_values:
+        - /\D*/
 
 You can then access this data where it makes sense. For example `User.firstname` will
-give you the metadata for the first name. Accessing from the instance is also possible
-(e.g. `user.metadata`).
+give you all the metadata for that particular property. Accessing from the instance
+is also possible (e.g. `user.metadata`).
 
-The benefit of all this is that you can encapsulate and re-use data descriptions
-in classes. In conjunction with Rails some helper methods are also attached to
-the classes bases on the metadata for creating forms and altering validations on
-an attribute level.
+The benefit of all this is that your classes become **data-driven**. In most MVC
+frameworks like Rails you still have to duplicate validations between models
+and forms. By adding one level of abstraction we have a single place that can be
+used by any code constructs.
+
 
 Usage
 -----
@@ -34,11 +37,13 @@ config/metadata/user.yml:
 
     Forename:
         programmatic_name: forename
-        validate: \D*
+        valid_values:
+          - /\D*/
         require: yes
     Surname:
         programmatic_name: surname
-        validate: \D*
+        valid_values:
+          - /\D*/
         require: yes  
 
 Then we use the metadata in our model:
@@ -86,8 +91,11 @@ Below you can find methods and properties offered for classes and/or instances.
 **Class goodies**
 
 *`attr_descriptors_from`* - attaches the metadata at the specific file location to the class
-*`attr_descriptors`* - attaches the given metadata to the class
+
+*`attr_descriptors`* - attaches the given metadata to the class. Notice that this is *different* than the YAML structure
+
 *`attributes`* - shows all attributes the model can take
+
 *`required_attributes`* - shows all attributes that are marked as required
 
 **Instance goodies**
@@ -95,17 +103,25 @@ Below you can find methods and properties offered for classes and/or instances.
 *`attr_validations`* - let's you alter the behaviour of the validations. Takes `:only`, `:except`
 
 
-Reserved keywords (describing your data)
+Describing your data
 --------------------
 
 The keywords below are reserved for the helper methods when describing your data.
 You are free add your own metadata entries as long as they don't collide with the ones below.
 
-*`validate`* - regular expression being used to validate the field. The regular expression tries to match the WHOLE field. For example `\w*` is the same as `/\A\w*\z/` in pure Ruby.
-
 *`programmatic_name`* - this is the name that will be used throughout the code
+
+*`description`* - description for the field
+
+*`placeholder`* - text that is being shown in form fields
+
 *`require`* - tells if this field is required when inserting new data
-*`valid_values`* - list of permitted values for this data. If used in a form, this will
-            generate a dropdown or selection input field.
+
+*`valid_values`* - list of permitted values for this data. REgular expressions are allowed
+                   but they must start and end with '/'
 
 *`valid_num_values`* - specifies how many values can be chosen. ie. 3 specifies excactly 3 values to be chosen, 3+ sets a minimum of 3, 2-5 sets a range between 2 and 5.
+
+*`max_length`* - describes the maximum length of the value
+
+*`min_length`* - describes the minimum length of the value

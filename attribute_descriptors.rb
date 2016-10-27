@@ -15,7 +15,6 @@ module AttributeDescriptors
 
   META_SPECIFIERS = [
     'require',
-    'validate',
     'max_length',
     'min_length',
     'valid_values',
@@ -99,6 +98,28 @@ module AttributeDescriptors
             value += '\z' unless value.end_with?('\z')
           end
           metadata[attr_name][name] = Regexp.new(value)
+        when 'valid_values'
+          parsed = {
+            regexes: [],
+            strings: []
+          }
+          values = value
+          values.each do |value|
+            if value.start_with?('/') && value.end_with?('/')
+              re = value[1...-1]
+              # Enforce the \A..\z regex placeholders for security reasons
+              # (http://guides.rubyonrails.org/security.html#regular-expressions)
+              re = re[1..-1]  if re.start_with?('^')
+              re = re[0...-1] if re.start_with?('$')
+              re = '\A' + re unless re.start_with?('\A')
+              re += '\z' unless re.end_with?('\z')
+              parsed[:regexes].push(Regexp.new(re))
+            else
+              parsed[:strings].push(value)
+            end
+          end
+          metadata[attr_name][name] =  parsed
+
         when 'valid_num_values'
           metadata[attr_name][name] = value.to_s
         else
@@ -191,6 +212,7 @@ module AttributeDescriptors
     end
 
     def validate_value(value, meta, attr_name, record)
+      value = value.to_s
 
       # Limits of value
       if meta['min_length'] && meta['min_length'] > 0
@@ -199,11 +221,11 @@ module AttributeDescriptors
         record.errors.add(attr_name, 'is too big') if value.size > meta['max_length']
 
       # Inside permitted values
-      elsif meta['valid_values'] && !meta['valid_values'].include?(value)
-        record.errors.add(attr_name, 'is invalid')
-
-      # Regex validation
-      elsif meta['validate'] && ! (meta['validate'] =~ value.to_s)
+      elsif meta['valid_values']
+        return if meta['valid_values'][:strings].include?(value)
+        meta['valid_values'][:regexes].each do |regex|
+          return if regex =~ value
+        end
         record.errors.add(attr_name, 'is invalid')
       end
 

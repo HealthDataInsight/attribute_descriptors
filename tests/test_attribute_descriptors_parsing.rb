@@ -23,31 +23,31 @@ class TestAttributeDescriptorsParsing < Test::Unit::TestCase
     assert parsed['field1']['whatever'] = 'bleh'
   end
 
-  test 's "validate" entries become regular expressions after being parsed' do
-    yaml = 'field1: validate=\w'
-    assert AttributeDescriptors.load_yaml(yaml)['field1']['validate'].is_a? Regexp
+  test 'regular expressions are parsed as regular expressions' do
+    yaml = "field1:\n  valid_values:\n   - /\\w/"
+    parsed = AttributeDescriptors.load_yaml(yaml)
+    assert parsed['field1']['valid_values'][:regexes].size == 1
+    assert parsed['field1']['valid_values'][:regexes].first.is_a? Regexp
   end
 
-  test 's "validate" entries once parsed, have the \A and \z placeholders enforced' do
-    yaml = 'field1: validate=\w'
-    assert AttributeDescriptors.load_yaml(yaml)['field1']['validate'] == /\A\w\z/
-  end
-
-  test 's "validate" regexes can also use the ruby syntax (/bleh/)' do
-    yaml = 'field1: validate=/\w/'
-    assert AttributeDescriptors.load_yaml(yaml)['field1']['validate'] == /\A\w\z/
+  test 'regular expressions once parsed, have the \A and \z placeholders enforced' do
+    yaml = "field1:\n  valid_values:\n   - /\\w/"
+    parsed = AttributeDescriptors.load_yaml(yaml)
+    ap parsed['field1']['valid_values'][:regexes].first
+    assert parsed['field1']['valid_values'][:regexes].first == /\A\w\z/
   end
 
   test 'more advanced regexes should be parsed in the same way' do
-    base = "field1:\n  validate: "
+    base = "field1:\n  valid_values:\n   - "
     regexes = {
-      '.*' => /\A.*\z/,
-      '\w' => /\A\w\z/,
-      '\w{10}' => /\A\w{10}\z/,
-      '\w{10}[^\d]' => /\A\w{10}[^\d]\z/,
+      '/.*/' => /\A.*\z/,
+      '/\w/' => /\A\w\z/,
+      '/\w{10}/' => /\A\w{10}\z/,
+      '/\w{10}[^\d]/' => /\A\w{10}[^\d]\z/,
     }
     regexes.each do |re_in, re_out|
-      assert AttributeDescriptors.load_yaml(base + re_in)['field1']['validate'] == re_out
+      parsed = AttributeDescriptors.load_yaml(base + re_in)
+      assert parsed['field1']['valid_values'][:regexes].first == re_out
     end
   end
 

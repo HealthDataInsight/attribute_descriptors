@@ -8,22 +8,26 @@ class TestAttributeDescriptorsValidations < Test::Unit::TestCase
 namelike:
   example: Seferidis
   invalid: Seferidis the 1st
-  validate: \D*
+  valid_values:
+    - /\D*/
   require: no
 digits_only:
   example: 123456
   invalid: 12g334
-  validate: \d{6}
+  valid_values:
+    - /\d{6}/
   require: no
 three_alpha_two_digits:
   example: abc44
   invalid: 12345
-  validate: /[a-zA-Z]{3}\d{2}/
+  valid_values:
+    - /[a-zA-Z]{3}\d{2}/
   require: no
 gmail email:
   example: manossef@gmail.com
   invalid: manossef@yahoo.com
-  validate: .*@gmail\.com
+  valid_values:
+    - /.*@gmail\.com/
   require: no
 ''')
 
