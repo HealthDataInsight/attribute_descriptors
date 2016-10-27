@@ -42,23 +42,6 @@ module AttributeDescriptors
     metadata = YAML.load(yaml)
     metadata.each do |attr_name, meta|
 
-      # Expand compact syntax (ie. a=10 b=20)
-      #
-      # field1: require=true example=jojo
-      #   validate: .*
-      #
-      #     ..gives the meta..
-      # "field1" => "require=true example=jojo validate=.*"
-      #
-      if meta.is_a? String # This is always true if compact syntax is used
-        asssignments = meta.split(' ')
-        metadata[attr_name] = {}
-        asssignments.each do |assignment|
-          k, v = assignment.split('=')
-          metadata[attr_name][k] = v
-        end
-      end
-
       # Generate a programmatic_name if none explicitly given
       #
       # IMPORTANT: Automatically generated programmatic names might be too long.

@@ -15,14 +15,6 @@ class TestAttributeDescriptorsParsing < Test::Unit::TestCase
     assert AttributeDescriptors.load_yaml(yaml)['field1']['require'] == true
   end
 
-  test 'can take the more compact syntax "a=1 b=2" etc.' do
-    yaml = "field1: require=true example=jojo\n  whatever=bleh"
-    parsed = AttributeDescriptors.load_yaml(yaml)
-    assert parsed['field1']['require'] = true
-    assert parsed['field1']['example'] = 'jojo'
-    assert parsed['field1']['whatever'] = 'bleh'
-  end
-
   test 'regular expressions are parsed as regular expressions' do
     yaml = "field1:\n  valid_values:\n   - /\\w/"
     parsed = AttributeDescriptors.load_yaml(yaml)
