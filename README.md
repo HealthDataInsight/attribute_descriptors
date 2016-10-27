@@ -92,7 +92,7 @@ Below you can find methods and properties offered for classes and/or instances.
 
 *`attr_descriptors_from`* - attaches the metadata at the specific file location to the class
 
-*`attr_descriptors`* - attaches the given metadata to the class. Notice that this is *different* than the YAML structure
+*`attr_descriptors`* - attaches the given metadata to the class. Notice that this is **different** than the YAML structure and due to complexity should be avoided
 
 *`attributes`* - shows all attributes the model can take
 
@@ -100,7 +100,7 @@ Below you can find methods and properties offered for classes and/or instances.
 
 **Instance goodies**
 
-*`attr_validations`* - let's you alter the behaviour of the validations. Takes `:only`, `:except`
+*`attr_validations`* - let's you alter the behaviour of the validations for a specific instance. Takes `:only`, `:except` with a list of attribute names to apply.
 
 
 Describing your data
