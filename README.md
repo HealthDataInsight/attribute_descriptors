@@ -17,9 +17,9 @@ The way this works is by having a YAML that describes your data like below.
       valid_values:
         - /\D*/
 
-You can then access this data where it makes sense. For example `User.firstname` will
-give you all the metadata for that particular property. Accessing from the instance
-is also possible (e.g. `user.metadata`).
+You can then access this data where it makes sense. For example `User.firstname` yields
+the metadata for the firstname property. The data can also be accessed at the instance level
+ (e.g. `user.metadata`).
 
 The benefit of all this is that your classes become **data-driven**. In most MVC
 frameworks like Rails you still have to duplicate validations between models
@@ -60,7 +60,7 @@ You can then access the metadata directly either from the class or an instance.
     User.forename     # gives metadata for forename
     User.new.metadata # gives the whole metadata
 
-You also have access to helper methods that let you create form fields intuively.
+You also have access to helper methods that let you create form fields intuitively.
 
     User.forename.as_input_field
 
@@ -107,7 +107,7 @@ Describing your data
 --------------------
 
 The keywords below are reserved for the helper methods when describing your data.
-You are free add your own metadata entries as long as they don't collide with the ones below.
+You are free to add your own metadata entries as long as they don't collide with the ones below.
 
 *`programmatic_name`* - this is the name that will be used throughout the code
 
